@@ -3,7 +3,6 @@ import arcade
 
 from scripts.Class.GameObject import Component
 
-
 class SpriteRendererComponent(Component):
     """Sprite component"""
     
@@ -16,10 +15,6 @@ class SpriteRendererComponent(Component):
         self.Animation: FrameAnimation = animation
 
         self.add_to_batch(self.batch)
-    
-    def start(self):
-        if self.game_object and self.game_object.transform:
-            self.sync_with_transform()
 
     def set_Animation(self, anim: FrameAnimation):
         self.Animation = anim
@@ -37,6 +32,10 @@ class SpriteRendererComponent(Component):
 
             self.sprite.scale_x = t.scale.x / self.sprite.texture.width
             self.sprite.scale_y = t.scale.y / self.sprite.texture.height
+
+    def start(self):
+        if self.game_object and self.game_object.transform:
+            self.sync_with_transform()
     
     def update(self, delta_time):
         self.sync_with_transform()
@@ -46,10 +45,8 @@ class SpriteRendererComponent(Component):
             if self.Animation.IsPlaying:
                 self.Animation.on_update(delta_time)
     
-    def add_to_batch(self, sprite_list):
+    def add_to_batch(self, sprite_list: arcade.SpriteList):
         """Add to SpriteList for batch rendering"""
-        if self.batch and self.sprite in self.batch:
-            self.batch.remove(self.sprite)
         self.batch = sprite_list
         sprite_list.append(self.sprite)
 

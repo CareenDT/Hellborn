@@ -11,9 +11,20 @@ class MenuObject(arcade.View):
 
         self.window = window
 
+        self.Object_Batch = arcade.SpriteList()
+
         self.game_objects: list[GameObject] = []
 
-        self.Btn = GameObject("Butnni", Transform(50,50,0, arcade.Vec2(200,200)))
+        self.obj_Side = GameObject("Menu_Sidebar", Transform())
+        self.obj_Side.add_component(ScreenRelativeTransform(self,0.5, 0.5, 0.35, 1))
+
+        self.obj_Side.add_component(BoxRenderer((0, 0, 0, 255), self.obj_Side))
+        self.game_objects.append(self.obj_Side)
+
+        self.Btn = GameObject("Butnni", Transform())
+
+        self.Btn.add_component(ScreenRelativeTransform(self.obj_Side,0, 0, 1, .25))
+
         self.Btn.add_component(ButtonComponent(self, self.Btn, "Play" ,on_click = self.onBtn_Play, normal_texture=arcade.load_texture("assets/TheSun.png")))
 
         self.Btn.add_component(SpriteRendererComponent("assets/TheSun.png", 1, window.Object_Batch))
@@ -25,6 +36,8 @@ class MenuObject(arcade.View):
         for obj in self.game_objects:
             obj.draw()
 
+        self.Object_Batch.draw(pixelated=True)
+
         self.Batch.draw()
     
     def onBtn_Play(self):
@@ -35,15 +48,12 @@ class MenuObject(arcade.View):
             obj.update(delta_time)
 
     def on_mouse_press(self, x, y, button, modifiers):
-        # Check all game objects for button components
         for obj in self.game_objects:
-            # Get ButtonComponent if exists
             btn_comp = obj.get_component(ButtonComponent)
             if btn_comp:
                 btn_comp.check_click(x, y, button)
     
     def on_mouse_motion(self, x, y, dx, dy):
-        # Update hover state
         for obj in self.game_objects:
             btn_comp = obj.get_component(ButtonComponent)
             if btn_comp:

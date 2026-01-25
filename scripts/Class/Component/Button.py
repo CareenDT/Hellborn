@@ -4,7 +4,7 @@ from scripts.Class.GameObject import Component, GameObject, Transform
 from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
 
 class ButtonComponent(Component):
-    def __init__(self, View, gameObject: GameObject, Text: str = "", normal_texture: arcade.Texture = None, hover_texture: arcade.Texture = None, on_click: Any = None):
+    def __init__(self, view, gameObject: GameObject, Text: str = "", normal_texture: arcade.Texture = None, hover_texture: arcade.Texture = None, on_click: Any = None):
         self.x = gameObject.transform.position.x
         self.y = gameObject.transform.position.y
         self.width = gameObject.transform.scale.x
@@ -12,7 +12,6 @@ class ButtonComponent(Component):
         self.text = Text
         self.normal_texture = normal_texture
         self.hover_texture = hover_texture
-        self.current_texture = normal_texture
         self.is_hovered = False
         self.is_pressed = False
         
@@ -20,10 +19,12 @@ class ButtonComponent(Component):
 
         self.on_click = on_click
 
-        self.SpriteComp = self.game_object.get_component(SpriteRendererComponent)
+        self.SpriteComp : SpriteRendererComponent = self.game_object.get_component(SpriteRendererComponent)
 
         if not self.SpriteComp:
-            self.SpriteComp = self.game_object.add_component(SpriteRendererComponent)
+            self.SpriteComp = self.game_object.add_component(SpriteRendererComponent(normal_texture, 1, view.Object_Batch))
+        else:
+            self.SpriteComp.sprite.texture = normal_texture
 
 
     def sync_with_transform(self):
@@ -63,11 +64,12 @@ class ButtonComponent(Component):
         
         if left <= mouse_x <= right and bottom <= mouse_y <= top:
             self.is_hovered = True
-            self.current_texture = self.hover_texture
+            if self.hover_texture:
+                self.SpriteComp.sprite.texture = self.hover_texture
             return True
         else:
             self.is_hovered = False
-            self.current_texture = self.normal_texture
+            self.SpriteComp.sprite.texture = self.normal_texture
             return False
     
     def check_click(self, mouse_x, mouse_y, mouse_button):

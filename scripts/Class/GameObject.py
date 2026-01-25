@@ -3,7 +3,7 @@ from typing import List, Type, Dict, Optional, Any
 
 class Component:
     """Base class for all components"""
-    def __init__(self, game_object: 'GameObject' = None):
+    def __init__(self, game_object: 'GameObject' = None, ):
         self.game_object = game_object
         
     def start(self):
@@ -23,7 +23,7 @@ class Component:
         pass
 
 class GameObject():
-    def __init__(self, Name, transform: Transform = None):
+    def __init__(self, Name, transform: Transform = None, ):
 
         self.Name = Name
         self.transform = transform
