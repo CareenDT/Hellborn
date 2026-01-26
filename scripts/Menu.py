@@ -1,13 +1,17 @@
 import arcade
+from arcade import SpriteList
 from pyglet.graphics import Batch
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
+from scripts.globals import WIDTH, HEIGHT
+
 
 class MenuObject(arcade.View):
     def __init__(self, window):
         super().__init__()
 
         self.Batch = Batch()
+
 
         self.window = window
 
@@ -21,17 +25,29 @@ class MenuObject(arcade.View):
         self.obj_Side.add_component(BoxRenderer((0, 0, 0, 255), self.obj_Side))
         self.game_objects.append(self.obj_Side)
 
+        self.background_sprite_list = SpriteList()
+
+        self.background_sprite = arcade.Sprite("assets/b_g.jpg",
+                                               center_x=WIDTH // 2,
+                                               center_y=HEIGHT // 2)
+        self.background_sprite.width = WIDTH
+        self.background_sprite.height = HEIGHT
+        self.background_sprite_list.append(self.background_sprite)
+
         self.Btn = GameObject("Butnni", Transform())
 
-        self.Btn.add_component(ScreenRelativeTransform(self.obj_Side,0, 0, 1, .25))
+        self.Btn.add_component(ScreenRelativeTransform(self.obj_Side, 0, 0, 0.5, 0.1))
 
-        self.Btn.add_component(ButtonComponent(self, self.Btn, "Play" ,on_click = self.onBtn_Play, normal_texture=arcade.load_texture("assets/TheSun.png")))
+        self.Btn.add_component(ButtonComponent(self, self.Btn, "Play", on_click = self.onBtn_Play,
+                                               normal_texture=arcade.load_texture("assets/play.png")))
 
-        self.Btn.add_component(SpriteRendererComponent("assets/TheSun.png", 1, window.Object_Batch))
+        self.Btn.add_component(SpriteRendererComponent("assets/play.png", 1, self.Object_Batch))
         self.game_objects.append(self.Btn)
 
     def on_draw(self):
         self.clear()
+
+        self.background_sprite_list.draw()
 
         for obj in self.game_objects:
             obj.draw()
@@ -44,6 +60,12 @@ class MenuObject(arcade.View):
         print("Pressed")
 
     def on_update(self, delta_time):
+
+        self.background_sprite.width = WIDTH
+        self.background_sprite.height = HEIGHT
+        self.background_sprite.center_x= WIDTH // 2
+        self.background_sprite.center_y= HEIGHT // 2
+
         for obj in self.game_objects:
             obj.update(delta_time)
 

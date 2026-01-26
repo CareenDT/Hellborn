@@ -22,8 +22,23 @@ class Component:
         """[ABSTRACT] called when the component is destroyed /// Cleanup function"""
         pass
 
+class Transform:
+    """Transform component"""
+    def __init__(self, x: float = 0.0, y: float = 0.0, 
+                 rotation: float = 0.0, scale: float = 1.0):
+        
+        self.position = arcade.Vec2(x, y)
+        self.rotation = rotation
+        self.scale = arcade.Vec2(scale, scale)
+    def __init__(self, x: float = 0.0, y: float = 0.0, 
+                 rotation: float = 0.0, scale: arcade.Vec2 = arcade.Vec2(0,0)):
+        
+        self.position = arcade.Vec2(x, y)
+        self.rotation = rotation
+        self.scale = scale
+
 class GameObject():
-    def __init__(self, Name, transform: Transform = None, ):
+    def __init__(self, Name, transform: Transform = Transform()):
 
         self.Name = Name
         self.transform = transform
@@ -119,17 +134,3 @@ class GameObject():
     def __repr__(self):
         return f"Name: {self.Name}; Gameobject(Position: {self.center_x, self.center_y};)"
 
-class Transform:
-    """Transform component"""
-    def __init__(self, x: float = 0.0, y: float = 0.0, 
-                 rotation: float = 0.0, scale: float = 1.0):
-        
-        self.position = arcade.Vec2(x, y)
-        self.rotation = rotation
-        self.scale = arcade.Vec2(scale, scale)
-    def __init__(self, x: float = 0.0, y: float = 0.0, 
-                 rotation: float = 0.0, scale: arcade.Vec2 = arcade.Vec2(0,0)):
-        
-        self.position = arcade.Vec2(x, y)
-        self.rotation = rotation
-        self.scale = scale

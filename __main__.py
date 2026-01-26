@@ -3,13 +3,20 @@ from scripts.globals import HEIGHT, WIDTH
 from scripts.Menu import MenuObject
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
+from scripts.Class.LoadingScreen import LoadingScreen
+from scripts.Class.Tween import *
 
 class Game(arcade.Window):
     def __init__(self, title: str):
-        super().__init__(WIDTH, HEIGHT, title, resizable=True, antialiasing=False)
+        super().__init__(WIDTH, HEIGHT, title, resizable=False, antialiasing=False, fullscreen=False)
         self.background_color = arcade.color.WHITE
 
     def setup(self):
+
+        loading_screen = LoadingScreen(self)
+        loading_screen.setup()
+        self.show_view(loading_screen)
+
         self._time = 0
 
         self.game_objects: list[GameObject] = []
@@ -18,14 +25,13 @@ class Game(arcade.Window):
 
         self.keys_pressed = set()
 
-        self.Menu_View = MenuObject(self)
-
-        self.show_view(self.Menu_View)
-     
     def on_update(self, delta_time):
+
+        TweenManager.update()
+
         for obj in self.game_objects:
             obj.update(delta_time)
-    
+
     def on_key_press(self, key, modifiers):
         self.keys_pressed.add(key)
 
