@@ -88,8 +88,8 @@ class LoadingScreen(arcade.View):
 
     def on_update(self, delta_time):
         if self.loading_complete and self.animation_timer >= 0.5:
-            self.Menu_obj = MenuObject(self)
-            self.window.show_view(self.Menu_obj)
+            menu = MenuObject(self.window)
+            self.window.show_view(menu)
         if self.alpha >= 254:
             self.alpha_low = True
         if self.alpha_low:

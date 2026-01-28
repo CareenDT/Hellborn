@@ -8,9 +8,10 @@ from scripts.Class.Components import *
 from scripts.Class.LoadingScreen import LoadingScreen
 from scripts.Class.Tween import *
 
+
 class Game(arcade.Window):
     def __init__(self, title: str):
-        super().__init__(WIDTH, HEIGHT, title, resizable=False, antialiasing=False, fullscreen=False)
+        super().__init__(WIDTH, HEIGHT, title, resizable=True, antialiasing=False, fullscreen=True)
         self.background_color = arcade.color.WHITE
 
     def setup(self):
@@ -86,6 +87,9 @@ class Game(arcade.Window):
             self.player1_controller.on_key_press(key)
         if hasattr(self, 'player2_controller'):
             self.player2_controller.on_key_press(key)
+
+        if key == arcade.key.F11:
+            self.set_fullscreen(not self.fullscreen)
 
     def on_key_release(self, key, modifiers):
         if key in self.keys_pressed:

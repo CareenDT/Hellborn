@@ -1,118 +1,166 @@
 import arcade
+from arcade import SpriteList
 from pyglet.graphics import Batch
 
-from scripts.globals import HEIGHT, WIDTH
-from scripts.Menu import MenuObject
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
+from scripts.globals import WIDTH, HEIGHT
 
 class FightLocal(arcade.View):
     def __init__(self, window: arcade.Window):
         super().__init__(window)
 
-        self.loading_progress = 0
+        self.Batch = Batch()
 
-        self.loading_complete = False
-
-        self.background = None
-
-        self.alpha_low = False
-
-        self.alpha = 0
-
-        self.load_prog = 0
-
-        self.game_objects = []
-
-        self.background_color = (0,0,0)
-
-    def setup(self):
-
-        self.create_loading_animation()
-
-        self.batch = Batch()
+        self.window = window
 
         self.Object_Batch = arcade.SpriteList()
 
-        try:
-            self.background = arcade.load_texture("assets/b_gg.jpg")
-        except Exception as e:
-            self.background = None
+        self.game_objects: list[GameObject] = []
 
-        self.creators_txt = arcade.Text(
-            "Game by Careen, Fizis, Waqman",
-            WIDTH // 2 - WIDTH // 10,
-            HEIGHT // 4,
-            arcade.color.PURPLE,
-            32,
-            align="center",
-            anchor_x="center",
-            batch=self.batch,
-            alpha=self.alpha,
-        )
+        self.obj_Side = GameObject("Menu_Sidebar", Transform())
+        self.obj_Side.add_component(ScreenRelativeTransform(self, 0.5, 0.5, 0.35, 1))
 
-        self.Logo = GameObject("Logo", Transform())
-        self.Logo.add_component(ScreenRelativeTransform(self, 0.5, 0.65, 0.5, 1))
-        self.Logo.add_component(AspectRatioComponent(0.15702479,True))
-        self.Logo.add_component(SpriteRendererComponent("assets/images/hellborn.png", 1, self.Object_Batch))
-        self.game_objects.append(self.Logo)
+        self.obj_Side.add_component(BoxRenderer((255, 0, 0, 60), self.obj_Side))
+        self.game_objects.append(self.obj_Side)
 
-    def create_loading_animation(self):
-        self.animation_timer = 0
+        self.background_sprite_list = SpriteList()
+
+        self.background_sprite = arcade.Sprite("assets/arena.png",
+                                               center_x=WIDTH // 2,
+                                               center_y=HEIGHT // 2)
+
+        self.background_sprite.width = WIDTH
+        self.background_sprite.height = HEIGHT
+        self.background_sprite_list.append(self.background_sprite)
+
+        self.hp_bar = arcade.Sprite("assets/images/hp_bar.png",
+                                    center_y=HEIGHT // 1.22,
+                                    center_x=WIDTH // 2 - 200)
+
+        self.hp_bar.width = (192 * (WIDTH / 192 / 1.4)) // 1
+        self.hp_bar.height = 64 * 5
+        self.background_sprite_list.append(self.hp_bar)
+
+        self.rage_bar1 = arcade.Sprite("assets/images/rage_bar.png",
+                                    center_y=HEIGHT - HEIGHT // 1.07,
+                                    center_x=WIDTH // 6.5)
+
+        self.rage_bar1.width = (236 * (WIDTH / 236 / 3.7)) // 1
+        self.rage_bar1.height = 32 * 2.5
+        self.background_sprite_list.append(self.rage_bar1)
+
+        texture_r_b =arcade.load_texture("assets/images/rage_bar.png")
+
+        self.rage_bar2 = arcade.Sprite(texture_r_b,
+                                    center_y=HEIGHT - HEIGHT // 1.07,
+                                    center_x=WIDTH // 1.565)
+
+        self.rage_bar2.width = -(236 * (WIDTH / 236 / 3.7)) // 1
+        self.rage_bar2.height = 32 * 2.5
+        self.background_sprite_list.append(self.rage_bar2)
+
+        self.hp1 = arcade.Sprite("assets/images/1hp.png",
+                                    center_y=HEIGHT // 1.27,
+                                    center_x=WIDTH // 15)
+
+        self.hp1.width = 32
+        self.hp1.height = 32
+        self.background_sprite_list.append(self.hp1)
+
+        self.av1 = arcade.Sprite("assets/images/avotarochka.png",
+                                    center_y=HEIGHT // 1.27,
+                                    center_x=WIDTH // 15)
+
+        self.av1.width = 36
+        self.av1.height = 36
+        self.background_sprite_list.append(self.av1)
+
+        self.hp2 = arcade.Sprite("assets/images/1hp.png",
+                                    center_y=HEIGHT // 1.27,
+                                    center_x=WIDTH // 11)
+
+        self.hp2.width = 32
+        self.hp2.height = 32
+        self.background_sprite_list.append(self.hp2)
+
+        self.av2 = arcade.Sprite("assets/images/avotarochka.png",
+                                    center_y=HEIGHT // 1.27,
+                                    center_x=WIDTH // 11)
+
+        self.av2.width = 36
+        self.av2.height = 36
+        self.background_sprite_list.append(self.av2)
+
+        self.hp3 = arcade.Sprite("assets/images/1hp.png",
+                                    center_y=HEIGHT // 1.27,
+                                    center_x=WIDTH // 1.378)
+
+        self.hp3.width = 32
+        self.hp3.height = 32
+        self.background_sprite_list.append(self.hp3)
+
+        self.av3 = arcade.Sprite("assets/images/avotarochka.png",
+                                    center_y=HEIGHT // 1.27,
+                                    center_x=WIDTH // 1.378)
+
+        self.av3.width = -36
+        self.av3.height = 36
+        self.background_sprite_list.append(self.av3)
+
+        self.hp4 = arcade.Sprite("assets/images/1hp.png",
+                                    center_y=HEIGHT // 1.27,
+                                    center_x=WIDTH // 1.425)
+
+        self.hp4.width = 32
+        self.hp4.height = 32
+        self.background_sprite_list.append(self.hp4)
+
+        self.av4 = arcade.Sprite("assets/images/avotarochka.png",
+                                    center_y=HEIGHT // 1.27,
+                                    center_x=WIDTH // 1.425)
+
+        self.av4.width = -36
+        self.av4.height = 36
+        self.background_sprite_list.append(self.av4)
+
+
+
 
     def on_draw(self):
-
         self.clear()
 
-        if self.alpha >= 50:
-            self.alpha_2 = self.alpha - 50
-        else:
-            self.alpha_2 = 0
+        self.background_sprite_list.draw(pixelated=True)
 
-        arcade.draw_text(
-            "Game by Careen, Fizis, Waqman",
-            WIDTH // 2 - WIDTH // 10,
-            HEIGHT // 4,
-            (arcade.color.PURPLE[0], arcade.color.PURPLE[1], arcade.color.PURPLE[2], int(self.alpha_2)),
-            32,
-            align="center",
-            anchor_x="center"
-        )
-
-        for i in self.game_objects:
-            i.draw()
+        for obj in self.game_objects:
+            obj.draw()
 
         self.Object_Batch.draw(pixelated=True)
 
-        self.batch.draw()
+        self.Batch.draw()
 
     def on_update(self, delta_time):
-        if self.loading_complete and self.animation_timer >= 0.5:
-            self.Menu_obj = MenuObject(self)
-            self.window.show_view(self.Menu_obj)
-        if self.alpha >= 254:
-            self.alpha_low = True
-        if self.alpha_low:
-            if self.load_prog >= 0.8:
-                if self.alpha <= 10:
-                    self.loading_complete = True
-                self.alpha -= 80 * delta_time
-        else:
-            self.alpha += 80 * delta_time
-        if self.loading_complete:
-            self.animation_timer += delta_time
-        if self.alpha_low:
-            self.load_prog += delta_time
 
-        self.Logo.get_component(SpriteRendererComponent).sprite.alpha = self.alpha
+        self.background_sprite.width = WIDTH
+        self.background_sprite.height = HEIGHT
+        self.background_sprite.center_x = WIDTH // 2
+        self.background_sprite.center_y = HEIGHT // 2
 
-        for i in self.game_objects:
-            i.update(delta_time)
+        for obj in self.game_objects:
+            obj.update(delta_time)
 
-    def on_btn_Play(self):
-        pass
+    def on_mouse_press(self, x, y, button, modifiers):
+        for obj in self.game_objects:
+            btn_comp = obj.get_component(ButtonComponent)
+            if btn_comp:
+                btn_comp.check_click(x, y, button)
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        for obj in self.game_objects:
+            btn_comp = obj.get_component(ButtonComponent)
+            if btn_comp:
+                btn_comp.check_mouse_hover(x, y)
 
     def on_key_press(self, key: int, modifiers: int):
-        if key == arcade.key.ENTER or key == arcade.key.SPACE:
-            menu_view = MenuObject(self.window)
-            self.window.show_view(menu_view)
+        if key == arcade.key.SPACE:
+            arcade.close_window()

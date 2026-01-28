@@ -21,7 +21,7 @@ class BoxRenderer(Component):
         width = t.scale.x
         height = t.scale.y
 
-        arcade.draw_point(t.position.x, t.position.y, arcade.color.GREEN, 50)
+        #arcade.draw_point(t.position.x, t.position.y, arcade.color.GREEN, 50)
 
         arcade.draw_rect_filled(
             arcade.rect.XYRR(x, y, width/2, height/2),
