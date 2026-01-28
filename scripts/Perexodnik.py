@@ -1,0 +1,39 @@
+import arcade
+from scripts.globals import WIDTH, HEIGHT
+from scripts.FightLocal import FightLocal
+
+
+class TransitionScreen(arcade.View):
+    def __init__(self, window):
+        super().__init__()
+        self.window = window
+        self.timer = 0
+        self.duration = 2.0
+        arcade.set_background_color(arcade.color.BLACK)
+
+    def on_show(self):
+        self.timer = 0
+
+    def on_update(self, delta_time):
+        self.timer += delta_time
+        if self.timer >= self.duration + 0.5:
+            self.go_to_fight()
+
+    def go_to_fight(self):
+        fight_screen = FightLocal(self.window)
+        self.window.show_view(fight_screen)
+
+    def on_draw(self):
+        self.clear()
+        arcade.draw_text("Loading Fight...",
+                         WIDTH / 2 - 150, HEIGHT / 2,
+                         arcade.color.WHITE, 32,
+                         anchor_x="center", anchor_y="center")
+        progress = min(self.timer / self.duration, 1.0)
+        arcade.draw_lbwh_rectangle_filled(WIDTH / 2 - 300, HEIGHT / 2 - 100,
+                                     progress * 300, 20,
+                                     arcade.color.GREEN)
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.SPACE:
+            self.go_to_fight()
