@@ -1,9 +1,10 @@
+# scripts/Class/GameObject.py
 import arcade
 from typing import List, Type, Dict, Optional, Any
 
 class Component:
     """Base class for all components"""
-    def __init__(self, game_object: 'GameObject' = None, ):
+    def __init__(self, game_object: 'GameObject' = None):
         self.game_object = game_object
         
     def start(self):
@@ -23,114 +24,123 @@ class Component:
         pass
 
 class Transform:
-    """Transform component"""
+    """Simple transform with mutable position and scale"""
     def __init__(self, x: float = 0.0, y: float = 0.0, 
-                 rotation: float = 0.0, scale: float = 1.0):
-        
-        self.position = arcade.Vec2(x, y)
+                 rotation: float = 0.0, 
+                 scale_x: float = 1.0, scale_y: float = 1.0):
+        self.x = x
+        self.y = y
         self.rotation = rotation
-        self.scale = arcade.Vec2(scale, scale)
-    def __init__(self, x: float = 0.0, y: float = 0.0, 
-                 rotation: float = 0.0, scale: arcade.Vec2 = arcade.Vec2(0,0)):
-        
-        self.position = arcade.Vec2(x, y)
-        self.rotation = rotation
-        self.scale = scale
+        self.scale_x = scale_x
+        self.scale_y = scale_y
+    
+    # Simple position setter
+    @property
+    def position(self):
+        return arcade.Vec2(self.x, self.y)
+    
+    @position.setter
+    def position(self, value):
+        if isinstance(value, arcade.Vec2):
+            self.x = value.x
+            self.y = value.y
+        elif isinstance(value, (tuple, list)) and len(value) == 2:
+            self.x = value[0]
+            self.y = value[1]
+    
+    # Simple scale setter
+    @property
+    def scale(self):
+        return arcade.Vec2(self.scale_x, self.scale_y)
+    
+    @scale.setter
+    def scale(self, value):
+        if isinstance(value, (int, float)):
+            self.scale_x = float(value)
+            self.scale_y = float(value)
+        elif isinstance(value, (tuple, list)) and len(value) == 2:
+            self.scale_x = float(value[0])
+            self.scale_y = float(value[1])
+        elif isinstance(value, arcade.Vec2):
+            self.scale_x = value.x
+            self.scale_y = value.y
+    
+    # For arcade.Sprite compatibility
+    @property
+    def center_x(self):
+        return self.x
+    
+    @property
+    def center_y(self):
+        return self.y
 
 class GameObject():
     def __init__(self, Name, transform: Transform = Transform()):
-
         self.Name = Name
         self.transform = transform
-
         self.components: Dict[Type[Component], List[Component]] = {}
 
     # Components
     def add_component(self, component: Component) -> Component:
-
         """Add a component to this GameObject"""
-
         component.game_object = self
         comp_type = type(component)
-        if comp_type not in self.components: # Null safety
+        if comp_type not in self.components:
             self.components[comp_type] = []
         
         self.components[comp_type].append(component)
-
         component.start()
-
         return component
     
     def get_component(self, component_type: Type[Component]) -> Optional[Component]:
-
         """Get the first component of specified type"""
-
         if component_type in self.components and self.components[component_type]:
             return self.components[component_type][0]
-
         return None
     
     def get_components(self, component_type: Type[Component]) -> List[Component]:
-
         """Get all components of specified type"""
-
         return self.components.get(component_type, [])
     
     def remove_component(self, component: Component):
         """Remove a specific component"""
-
         comp_type = type(component)
-
         if comp_type in self.components and component in self.components[comp_type]:
             component.destroy()
             self.components[comp_type].remove(component)
-            
-            if not self.components[comp_type]: # Clean up
+            if not self.components[comp_type]:
                 del self.components[comp_type]
     
     def remove_all_components(self):
-
         """Remove all components from this GameObject"""
-
         for comp_list in self.components.values():
             for component in comp_list:
                 component.destroy()
         self.components.clear()
     
     def has_component(self, component_type: Type[Component]) -> bool:
-
         """Check if GameObject has at least one component of specified type"""
-
         return component_type in self.components
     
     def get_all_components(self) -> List[Component]:
-
         """Get list of all components"""
-
         all_components = []
-
         for comp_list in self.components.values():
             all_components.extend(comp_list)
         return all_components
     
     # General
-    
     def update(self, delta_time):
-
         """Update all components"""
-
         for comp_list in self.components.values():
             for component in comp_list:
                 component.update(delta_time)
     
     def draw(self):
-
         """Draw the GameObject and its components"""
-        # Call on_draw for all components
         for comp_list in self.components.values():
             for component in comp_list:
                 component.on_draw()
 
     def __repr__(self):
-        return f"Name: {self.Name}; Gameobject(Position: {self.center_x, self.center_y};)"
-
+        return f"Name: {self.Name}; Gameobject(Position: {self.transform.x, self.transform.y};)"

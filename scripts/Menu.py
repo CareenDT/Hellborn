@@ -3,7 +3,7 @@ from arcade import SpriteList
 from pyglet.graphics import Batch
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
-from scripts.globals import WIDTH, HEIGHT
+from Globals import WIDTH, HEIGHT
 
 
 class MenuObject(arcade.View):
@@ -39,9 +39,9 @@ class MenuObject(arcade.View):
         self.Btn.add_component(ScreenRelativeTransform(self.obj_Side, 0, 0, 0.5, 0.1))
 
         self.Btn.add_component(ButtonComponent(self, self.Btn, "Play", on_click = self.onBtn_Play,
-                                               normal_texture=arcade.load_texture("assets/play.png")))
+                                               normal_texture=arcade.load_texture("assets/images/play.png")))
 
-        self.Btn.add_component(SpriteRendererComponent("assets/play.png", 1, self.Object_Batch))
+        self.Btn.add_component(SpriteRendererComponent("assets/images/play.png", 1, self.Object_Batch))
         self.game_objects.append(self.Btn)
 
     def on_draw(self):

@@ -1,7 +1,7 @@
 import arcade
 from pyglet.graphics import Batch
 
-from scripts.globals import HEIGHT, WIDTH
+from Globals import HEIGHT, WIDTH
 from scripts.Menu import MenuObject
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
@@ -52,7 +52,7 @@ class LoadingScreen(arcade.View):
         )
 
         self.Logo = GameObject("Logo", Transform())
-        self.Logo.add_component(ScreenRelativeTransform(self, 0.5, 0.65, 0.5, 1))
+        self.Logo.add_component(ScreenRelativeTransform(self.window, 0.5, 0.65, 0.5, 1))
         self.Logo.add_component(AspectRatioComponent(0.15702479,True))
         self.Logo.add_component(SpriteRendererComponent("assets/images/hellborn.png", 1, self.Object_Batch))
         self.game_objects.append(self.Logo)
