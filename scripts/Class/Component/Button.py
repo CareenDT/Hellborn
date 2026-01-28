@@ -1,7 +1,7 @@
-from typing import Any
 import arcade
 from scripts.Class.GameObject import Component, GameObject, Transform
 from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
+
 
 class ButtonComponent(Component):
     def __init__(self, view, gameObject: GameObject, Text: str = "", normal_texture: arcade.Texture = None,

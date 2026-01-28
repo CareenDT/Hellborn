@@ -3,7 +3,7 @@ from scripts.globals import WIDTH, HEIGHT
 from scripts.FightLocal import FightLocal
 
 
-class TransitionScreen(arcade.View):
+class Perexodnik(arcade.View):
     def __init__(self, window):
         super().__init__()
         self.window = window
@@ -16,7 +16,7 @@ class TransitionScreen(arcade.View):
 
     def on_update(self, delta_time):
         self.timer += delta_time
-        if self.timer >= self.duration + 0.5:
+        if self.timer >= self.duration + 0.2:
             self.go_to_fight()
 
     def go_to_fight(self):
