@@ -1,10 +1,8 @@
-# scripts/Class/Animation/AnimationSystem.py
 import arcade
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import Dict, List
 
 class CharacterState(Enum):
-    """Animation states for Syorma"""
     IDLE = "idle"
     WALK_FORWARD = "walk_forward"
     WALK_BACKWARD = "walk_backward"
@@ -12,65 +10,50 @@ class CharacterState(Enum):
     PUNCH2 = "punch2"
     KICK = "kick"
     UPPERCUT = "uppercut"
-    # Awoken versions
-    AWOKEN_IDLE = "awoken_idle"
-    AWOKEN_WALK_FORWARD = "awoken_walk_forward"
-    AWOKEN_WALK_BACKWARD = "awoken_walk_backward"
-    AWOKEN_PUNCH1 = "awoken_punch1"
-    AWOKEN_PUNCH2 = "awoken_punch2"
-    AWOKEN_KICK = "awoken_kick"
-    AWOKEN_UPPERCUT = "awoken_uppercut"
 
 class CharacterAnimation:
-    """Simple animation controller"""
     def __init__(self):
         self.current_state = CharacterState.IDLE
-        self.is_awoken = False
-        self.sprite_renderer = None
-        
-        self.animation_frames: Dict[CharacterState, List[str]] = {}
-        
-    def set_sprite_renderer(self, sprite_renderer):
-        """Set the sprite renderer to update"""
-        self.sprite_renderer = sprite_renderer
-    
-    def add_animation(self, state: CharacterState, frame_paths: List[str]):
-        """Add animation frames for a state"""
-        self.animation_frames[state] = frame_paths
-        
-        if state == CharacterState.IDLE and frame_paths:
-            if self.sprite_renderer:
-                self.sprite_renderer.sprite.texture = arcade.load_texture(frame_paths[0])
-    
+        self.current_texture = None
+        self.textures: Dict[CharacterState, List[arcade.Texture]] = {}
+        self.frame_index = 0
+        self.animation_timer = 0
+        self.frame_duration = 0.1
+        self.is_complete = False
+
+    def add_animation(self, state: CharacterState, texture_paths: List[str]):
+        textures = [arcade.load_texture(path) for path in texture_paths]
+        self.textures[state] = textures
+        if state == CharacterState.IDLE and self.current_texture is None:
+            self.current_texture = textures[0]
+
     def change_state(self, new_state: CharacterState):
-        """Change animation state"""
-        if self.is_awoken:
-            awoken_name = f"AWOKEN_{new_state.name}"
-            if hasattr(CharacterState, awoken_name):
-                awoken_state = getattr(CharacterState, awoken_name)
-                if awoken_state in self.animation_frames:
-                    self.current_state = awoken_state
-                    self._update_texture()
-                    return
-            if new_state in self.animation_frames:
-                self.current_state = new_state
-                self._update_texture()
-        else:
-            if new_state in self.animation_frames:
-                self.current_state = new_state
-                self._update_texture()
-    
-    def _update_texture(self):
-        """Update sprite texture to first frame of current animation"""
-        if (self.current_state in self.animation_frames and 
-            self.sprite_renderer and 
-            self.animation_frames[self.current_state]):
-            
-            frame_paths = self.animation_frames[self.current_state]
-            if frame_paths:
-                self.sprite_renderer.sprite.texture = arcade.load_texture(frame_paths[0])
-    
-    def awaken(self):
-        """Enter awoken state"""
-        self.is_awoken = True
-        self.change_state(CharacterState(self.current_state.name.replace("AWOKEN_", "")))
+        if new_state in self.textures:
+            self.current_state = new_state
+            self.frame_index = 0
+            self.animation_timer = 0
+            self.is_complete = False
+            self.current_texture = self.textures[new_state][0]
+            return True
+        return False
+
+    def update(self, delta_time: float):
+        if self.current_state in self.textures and not self.is_complete:
+            textures = self.textures[self.current_state]
+            if len(textures) > 1:
+                self.animation_timer += delta_time
+                if self.animation_timer >= self.frame_duration:
+                    self.animation_timer = 0
+                    next_index = self.frame_index + 1
+                    if next_index >= len(textures):
+                        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT]:
+                            self.is_complete = True
+                            return
+                        else:
+                            self.frame_index = 0
+                    else:
+                        self.frame_index = next_index
+                    self.current_texture = textures[self.frame_index]
+
+    def get_current_texture(self):
+        return self.current_texture
