@@ -13,8 +13,15 @@ class CharacterStats():
 
 
 class CharacterComponent(Component):
-    def __init__(self, game_object=None):
+    def __init__(self, game_object=None, controls=None):
         super().__init__(game_object)
+        self.controls = controls or {
+            'left': arcade.key.A,
+            'right': arcade.key.D,
+            'jump': arcade.key.W,
+            'attack': arcade.key.J,
+            'uppercut': arcade.key.K
+        }
         self.speed = 180
         self.facing_right = True
         self.velocity_x = 0
@@ -31,6 +38,8 @@ class CharacterComponent(Component):
         self.health = 120
         self.max_health = 120
         self.lives = 3
+        self.left_pressed = False
+        self.right_pressed = False
     
     def start(self):
         from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
@@ -154,3 +163,40 @@ class CharacterComponent(Component):
                 self.game_object.transform.scale_y = self.base_scale * 1.2
             if self.sprite_renderer and self.sprite_renderer.sprite:
                 self.sprite_renderer.sprite.scale = self.base_scale * 1.2
+
+    def handle_key_press(self, key: int):
+        if key == self.controls['left']:
+            self.left_pressed = True
+        elif key == self.controls['right']:
+            self.right_pressed = True
+        elif key == self.controls['jump']:
+            self.jump()
+        elif key == self.controls['attack']:
+            self.attack()
+        elif key == self.controls['uppercut']:
+            self.uppercut()
+        self.update_movement()
+
+    def handle_key_release(self, key: int):
+        if key == self.controls['left']:
+            self.left_pressed = False
+        elif key == self.controls['right']:
+            self.right_pressed = False
+        self.update_movement()
+
+    def update_movement(self):
+        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT]:
+            self.velocity_x = 0
+            return
+
+        if self.left_pressed and not self.right_pressed:
+            self.velocity_x = -self.speed
+            self.facing_right = False
+            self.change_state(CharacterState.WALK_BACKWARD)
+        elif self.right_pressed and not self.left_pressed:
+            self.velocity_x = self.speed
+            self.facing_right = True
+            self.change_state(CharacterState.WALK_FORWARD)
+        else:
+            self.velocity_x = 0
+            self.change_state(CharacterState.IDLE)
