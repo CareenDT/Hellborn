@@ -11,7 +11,7 @@ class Game(arcade.Window):
         arcade.set_background_color(arcade.color.BLACK)
 
     def setup(self):
-        loading_screen = LogoScreen(self)
+        loading_screen = FightLocal(self)
         self.show_view(loading_screen)
 
     def on_update(self, delta_time):
