@@ -4,11 +4,12 @@ from scripts.Class.GameObject import Component
 from scripts.Class.Animation.AnimationSystem import CharacterState, CharacterAnimation
 
 class CharacterStats():
-    def __init__(self,max_health=120, base_damage=12, speed=180, defense=0.8):
+    def __init__(self,max_health=120, base_damage=12, speed=180, defense=0.8, lives=3):
         self.max_health=max_health
         self.base_damage=base_damage
         self.speed=speed
         self.defense=defense
+        self.lives=lives
 
 
 class CharacterComponent(Component):
@@ -27,6 +28,9 @@ class CharacterComponent(Component):
         self.is_awoken = False
         self.base_speed = 180
         self.base_scale = 2.0
+        self.health = 120
+        self.max_health = 120
+        self.lives = 3
     
     def start(self):
         from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
@@ -126,6 +130,12 @@ class CharacterComponent(Component):
         self.uppercut_cooldown = self.uppercut_cooldown_time
     
     def take_damage(self, damage: float):
+        self.health -= damage
+        if self.health <= 0:
+            self.health = self.max_health
+            self.lives -= 1
+            if self.lives <= 0:
+                self.lives = 0
         self.rage += damage
         if self.rage > 100:
             self.rage = 100
