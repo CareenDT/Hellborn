@@ -24,14 +24,6 @@ class Transition(arcade.View):
 
     def on_draw(self):
         self.clear()
-        arcade.draw_text("Loading Fight...",
-                         self.window.width / 2 - 150, self.window.height / 2,
-                         arcade.color.WHITE, 32,
-                         anchor_x="center", anchor_y="center")
-        progress = min(self.timer / self.duration, 1.0)
-        arcade.draw_lbwh_rectangle_filled(self.window.width / 2 - 300, self.window.height / 2 - 100,
-                                     progress * 300, 20,
-                                     arcade.color.GREEN)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:

@@ -1,5 +1,6 @@
 import arcade
 from scripts.Class.GameObject import Component, GameObject
+from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
 
 
 class AspectRatioComponent(Component):
@@ -9,9 +10,7 @@ class AspectRatioComponent(Component):
         self.ratio = Ratio
     
     def start(self):
-        # Calculate ratio from texture if not set
         if self.ratio == 1:
-            from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
             sprite_comp = self.game_object.get_component(SpriteRendererComponent)
             if sprite_comp and sprite_comp.texture:
                 self.ratio = sprite_comp.texture.height / sprite_comp.texture.width

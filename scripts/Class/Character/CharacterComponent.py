@@ -2,6 +2,7 @@ import arcade
 import os
 from scripts.Class.GameObject import Component
 from scripts.Class.Animation.AnimationSystem import CharacterState, CharacterAnimation
+from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
 
 class CharacterStats():
     def __init__(self,max_health=120, base_damage=12, speed=180, defense=0.8, lives=3):
@@ -42,7 +43,6 @@ class CharacterComponent(Component):
         self.right_pressed = False
     
     def start(self):
-        from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
         self.sprite_renderer = self.game_object.get_component(SpriteRendererComponent)
         self._setup_animations()
         self.change_state(CharacterState.IDLE)
