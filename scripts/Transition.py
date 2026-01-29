@@ -1,9 +1,8 @@
 import arcade
 from scripts.globals import WIDTH, HEIGHT
-from scripts.FightLocal import FightLocal
+from scripts.Class.FightLocal import FightLocal
 
-
-class Perexodnik(arcade.View):
+class Transition(arcade.View):
     def __init__(self, window):
         super().__init__()
         self.window = window
@@ -26,11 +25,11 @@ class Perexodnik(arcade.View):
     def on_draw(self):
         self.clear()
         arcade.draw_text("Loading Fight...",
-                         WIDTH / 2 - 150, HEIGHT / 2,
+                         self.window.width / 2 - 150, self.window.height / 2,
                          arcade.color.WHITE, 32,
                          anchor_x="center", anchor_y="center")
         progress = min(self.timer / self.duration, 1.0)
-        arcade.draw_lbwh_rectangle_filled(WIDTH / 2 - 300, HEIGHT / 2 - 100,
+        arcade.draw_lbwh_rectangle_filled(self.window.width / 2 - 300, self.window.height / 2 - 100,
                                      progress * 300, 20,
                                      arcade.color.GREEN)
 

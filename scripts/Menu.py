@@ -1,104 +1,60 @@
 import arcade
-from arcade import SpriteList
-from pyglet.graphics import Batch
+import math
+from scripts.Transition import Transition
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
-from Globals import WIDTH, HEIGHT
-
 
 class MenuObject(arcade.View):
     def __init__(self, window):
         super().__init__()
-
-        self.Batch = Batch()
-
         self.window = window
-
         self.Object_Batch = arcade.SpriteList()
+        self.game_objects = []
+        self.time_elapsed = 0
 
-        self.game_objects: list[GameObject] = []
+        # Background
+        self.background = GameObject("Background", Transform(self.window.width // 2, self.window.height // 2))
+        self.background.add_component(SpriteRendererComponent("assets/bg_menu.png", 1.0, self.Object_Batch))
+        self.game_objects.append(self.background)
 
-        self.obj_Side = GameObject("Menu_Sidebar", Transform())
-        self.obj_Side.add_component(ScreenRelativeTransform(self, 0.5, 0.5, 0.35, 1))
+        # Play Button
+        self.btn_play = GameObject("Play", Transform())
+        self.btn_play.add_component(ScreenRelativeTransform(self, 0.5, 0.4, 0.5, 0.25))
+        self.btn_play.add_component(SpriteRendererComponent("assets/images/play.png", 1, self.Object_Batch))
+        self.btn_play.add_component(ButtonComponent(self, self.btn_play, "Play", on_click=self.onBtn_Play, normal_texture_path="assets/images/play.png"))
+        self.game_objects.append(self.btn_play)
 
-        self.obj_Side.add_component(BoxRenderer((0, 0, 0, 0), self.obj_Side))
-        self.game_objects.append(self.obj_Side)
+        # Exit Button
+        self.btn_exit = GameObject("Exit", Transform())
+        self.btn_exit.add_component(ScreenRelativeTransform(self, 0.5, 0.25, 0.5, 0.25))
+        self.btn_exit.add_component(SpriteRendererComponent("assets/images/EXIT.png", 1, self.Object_Batch))
+        self.btn_exit.add_component(ButtonComponent(self, self.btn_exit, "Exit", on_click=lambda: self.onBtn_Click("Exit"), normal_texture_path="assets/images/EXIT.png"))
+        self.game_objects.append(self.btn_exit)
 
-        self.background_sprite_list = SpriteList()
+        # Settings Button
+        self.btn_settings = GameObject("Settings", Transform())
+        self.btn_settings.add_component(ScreenRelativeTransform(self, 0.5, 0.55, 0.5, 0.25))
+        self.btn_settings.add_component(SpriteRendererComponent("assets/images/settings.png", 1, self.Object_Batch))
+        self.btn_settings.add_component(ButtonComponent(self, self.btn_settings, "Settings", on_click=lambda: self.onBtn_Click("Settings"), normal_texture_path="assets/images/settings.png"))
+        self.game_objects.append(self.btn_settings)
 
-        self.background_sprite = arcade.Sprite("assets/bg_menu.png",
-                                               center_x=WIDTH // 2,
-                                               center_y=HEIGHT // 2)
-        self.background_sprite.width = WIDTH
-        self.background_sprite.height = HEIGHT
-        self.background_sprite_list.append(self.background_sprite)
+        # Logo
+        self.logo = GameObject("Logo", Transform(self.window.width // 2, self.window.height * 0.75))
+        self.logo.add_component(SpriteRendererComponent("assets/images/hellborn.png", 1.5, self.Object_Batch))
+        self.game_objects.append(self.logo)
 
-        self.Btn = GameObject("Start", Transform())
-
-        self.Btn.add_component(ScreenRelativeTransform(self.obj_Side, 0, 0, 0.5, 0.1))
-
-<<<<<<< HEAD
-        self.Btn.add_component(ButtonComponent(self, self.Btn, "Play", on_click = self.onBtn_Play,
-=======
-        self.Btn.add_component(ButtonComponent(self, self.Btn, "Play", on_click=lambda: self.onBtn_Click('Play'),
->>>>>>> 20e52fe7a1498179ae907001e76d342ff1fdabdd
-                                               normal_texture=arcade.load_texture("assets/images/play.png")))
-
-        self.Btn.add_component(SpriteRendererComponent("assets/images/play.png", 1, self.Object_Batch))
-        self.game_objects.append(self.Btn)
-
-        self.Btn_close = GameObject("Exit", Transform())
-
-        self.Btn_close.add_component(ScreenRelativeTransform(self.obj_Side, 0, -0.2, 0.5, 0.1))
-
-        self.Btn_close.add_component(
-            ButtonComponent(self, self.Btn_close, "Play", on_click=lambda: self.onBtn_Click("Exit"),
-                            normal_texture=arcade.load_texture("assets/images/EXIT.png")))
-
-        self.Btn_close.add_component(SpriteRendererComponent("assets/images/EXIT.png", 1, self.Object_Batch))
-        self.game_objects.append(self.Btn_close)
-
-        self.Btn_settings = GameObject("Settings", Transform())
-
-        self.Btn_settings.add_component(ScreenRelativeTransform(self.obj_Side, 0, 0.2, 0.5, 0.1))
-
-        self.Btn_settings.add_component(
-            ButtonComponent(self, self.Btn_settings, "Play", on_click=lambda: self.onBtn_Click('Settings'),
-                            normal_texture=arcade.load_texture("assets/images/settings.png")))
-
-        self.Btn_settings.add_component(SpriteRendererComponent("assets/images/settings.png", 1, self.Object_Batch))
-        self.game_objects.append(self.Btn_settings)
-
-        self.hellborn_sprite = arcade.Sprite('assets/images/hellborn.png',
-                                             center_x=-120,
-                                             center_y=HEIGHT // 1.2,
-                                             scale=1.5)
-
-        self.hellborn_sprite_list = SpriteList()
-        self.hellborn_sprite_list.append(self.hellborn_sprite)
-
-        self.animation = True
+    def onBtn_Play(self):
+        self.onBtn_Click("Play")
 
     def on_draw(self):
         self.clear()
-
-        self.background_sprite_list.draw(pixelated=True)
-
-        self.hellborn_sprite_list.draw(pixelated=True)
-
         for obj in self.game_objects:
             obj.draw()
-
         self.Object_Batch.draw(pixelated=True)
 
-        self.Batch.draw()
-
     def onBtn_Click(self, btn):
-        print(btn)
         if btn == "Play":
-            from scripts.Perexodnik import Perexodnik
-
-            transition = Perexodnik(self.window)
+            transition = Transition(self.window)
             self.window.show_view(transition)
         elif btn == "Exit":
             arcade.close_window()
@@ -106,17 +62,10 @@ class MenuObject(arcade.View):
             pass
 
     def on_update(self, delta_time):
-
-        self.background_sprite.width = WIDTH
-        self.background_sprite.height = HEIGHT
-        self.background_sprite.center_x = WIDTH // 2
-        self.background_sprite.center_y = HEIGHT // 2
-
-        if self.animation:
-            self.hellborn_sprite.center_x += 50 * delta_time
-            if self.hellborn_sprite.center_x >= 100:
-                self.animation = False
-
+        self.time_elapsed += delta_time
+        rotation_angle = math.sin(self.time_elapsed * 0.5) * 10
+        if self.logo.get_component(SpriteRendererComponent):
+            self.logo.get_component(SpriteRendererComponent).sprite.angle = rotation_angle
 
         for obj in self.game_objects:
             obj.update(delta_time)

@@ -1,26 +1,24 @@
+from typing import Any
 import arcade
 from scripts.Class.GameObject import Component, GameObject, Transform
 from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
 
 
 class ButtonComponent(Component):
-    def __init__(self, view, gameObject: GameObject, Text: str = "", normal_texture: arcade.Texture = None,
-                 hover_texture: arcade.Texture = None, on_click: Any = None):
+    def __init__(self, view, gameObject: GameObject, Text: str = "", normal_texture_path: str = None,
+                 hover_texture_path: str = None, on_click: Any = None):
         super().__init__(gameObject)
 
         self.text = Text
-        self.normal_texture = normal_texture
-        self.hover_texture = hover_texture
+        self.normal_texture = arcade.load_texture(normal_texture_path) if normal_texture_path else None
+        self.hover_texture = arcade.load_texture(hover_texture_path) if hover_texture_path else None
         self.is_hovered = False
         self.on_click = on_click
 
         self.SpriteComp: SpriteRendererComponent = self.game_object.get_component(SpriteRendererComponent)
 
-        if not self.SpriteComp:
-            self.SpriteComp = self.game_object.add_component(
-                SpriteRendererComponent(normal_texture, 1, view.Object_Batch))
-        else:
-            self.SpriteComp.sprite.texture = normal_texture
+        if self.SpriteComp and self.normal_texture:
+            self.SpriteComp.sprite.texture = self.normal_texture
 
     def check_mouse_hover(self, mouse_x, mouse_y):
         if not self.SpriteComp or not self.SpriteComp.sprite:

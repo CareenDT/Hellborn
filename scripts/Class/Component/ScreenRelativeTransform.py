@@ -19,4 +19,4 @@ class ScreenRelativeTransform(Component):
             self.game_object.transform.scale = arcade.Vec2(self.RelativeScaleX * self.RelativeTo.transform.scale.x, self.RelativeScaleY * self.RelativeTo.transform.scale.y)
         else:
             self.game_object.transform.position = arcade.Vec2(self.RelativePosX * self.RelativeTo.width,self.RelativePosY * self.RelativeTo.height)
-            self.game_object.transform.scale = arcade.Vec2(self.RelativeScaleX * self.RelativeTo.width, self.RelativeScaleY * self.RelativeTo.height)
+            self.game_object.transform.scale = arcade.Vec2(self.RelativeScaleX, self.RelativeScaleY)
