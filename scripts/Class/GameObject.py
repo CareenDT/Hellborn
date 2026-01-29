@@ -1,4 +1,3 @@
-# scripts/Class/GameObject.py
 import arcade
 from typing import List, Type, Dict, Optional, Any
 
@@ -34,7 +33,6 @@ class Transform:
         self.scale_x = scale_x
         self.scale_y = scale_y
     
-    # Simple position setter
     @property
     def position(self):
         return arcade.Vec2(self.x, self.y)
@@ -48,7 +46,6 @@ class Transform:
             self.x = value[0]
             self.y = value[1]
     
-    # Simple scale setter
     @property
     def scale(self):
         return arcade.Vec2(self.scale_x, self.scale_y)
@@ -65,7 +62,6 @@ class Transform:
             self.scale_x = value.x
             self.scale_y = value.y
     
-    # For arcade.Sprite compatibility
     @property
     def center_x(self):
         return self.x
@@ -80,7 +76,6 @@ class GameObject():
         self.transform = transform
         self.components: Dict[Type[Component], List[Component]] = {}
 
-    # Components
     def add_component(self, component: Component) -> Component:
         """Add a component to this GameObject"""
         component.game_object = self
@@ -93,9 +88,11 @@ class GameObject():
         return component
     
     def get_component(self, component_type: Type[Component]) -> Optional[Component]:
-        """Get the first component of specified type"""
-        if component_type in self.components and self.components[component_type]:
-            return self.components[component_type][0]
+        """Get the first component of specified type or subclass"""
+        for comp_list in self.components.values():
+            for component in comp_list:
+                if isinstance(component, component_type):
+                    return component
         return None
     
     def get_components(self, component_type: Type[Component]) -> List[Component]:
@@ -129,7 +126,6 @@ class GameObject():
             all_components.extend(comp_list)
         return all_components
     
-    # General
     def update(self, delta_time):
         """Update all components"""
         for comp_list in self.components.values():
