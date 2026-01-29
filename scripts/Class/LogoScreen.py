@@ -2,6 +2,8 @@ import arcade
 from scripts.Menu import MenuObject
 from scripts.globals import HEIGHT, WIDTH
 from scripts.Class.FightLocal import FightLocal
+from scripts.Class.Tween import Tween
+from arcade.particles import FadeParticle, Emitter, EmitBurst
 
 class LogoScreen(arcade.View):
     def __init__(self, window: arcade.Window):
@@ -26,6 +28,7 @@ class LogoScreen(arcade.View):
     def on_draw(self):
         self.clear()
         self.sprite_list.draw(pixelated=True)
+        
     def on_update(self, delta_time):
         self.timer += delta_time
         
@@ -38,16 +41,22 @@ class LogoScreen(arcade.View):
         
         elif self.fade_state == "hold":
             if self.timer >= 2.0:
-                self.fade_state = "out"
+                self.fade_state = "tween"
+                self.timer = 0
+                target_x = self.window.width * 0.075
+                target_y = self.window.height * 0.85
+                target_scale = (self.window.width * 0.5) / self.sprite.texture.width
+                Tween(self.sprite, {"center_x": target_x, "center_y": target_y, "scale": target_scale}, 2.0)
+        
+        elif self.fade_state == "tween":
+
+            if self.timer >= 2.0:
+                self.fade_state = "change"
                 self.timer = 0
         
-        elif self.fade_state == "out":
-            self.alpha = max(self.alpha - 200 * delta_time, 0)
-            self.sprite.alpha = int(self.alpha)
-            if self.alpha <= 0:
-                
-                Menu_view = MenuObject(self.window)
-                self.window.show_view(Menu_view)
+        elif self.fade_state == "change":
+            Menu_view = MenuObject(self.window)
+            self.window.show_view(Menu_view)
 
     def on_key_press(self, key: int, modifiers: int):
         if key == arcade.key.ENTER or key == arcade.key.SPACE:
