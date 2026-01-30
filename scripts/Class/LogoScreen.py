@@ -3,7 +3,6 @@ from scripts.Menu import MenuObject
 from scripts.globals import HEIGHT, WIDTH
 from scripts.Class.FightLocal import FightLocal
 from scripts.Class.Tween import Tween
-from arcade.particles import FadeParticle, Emitter, EmitBurst
 
 class LogoScreen(arcade.View):
     def __init__(self, window: arcade.Window):
