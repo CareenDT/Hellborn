@@ -3,6 +3,7 @@ from scripts.Class.Character.CharacterComponent import CharacterComponent, Chara
 import os
 from scripts.Class.Animation.AnimationSystem import CharacterState
 from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
+from scripts.Class.Component.Hitbox import HitboxComponent, HitboxType
 
 class Syorma(GameObject):
     def __init__(self, name: str = "Syorma", transform: Transform = Transform(500, 100), sprite_list=None, scale=2.0, controls=None):
@@ -26,11 +27,11 @@ class Syorma(GameObject):
             defense=0.8
         )
 
-        character = SyormaCharacterComponent(stats=stats, controls=controls)
+        character = SyormaCharacterComponent(stats=stats, controls=controls, sprite_list=sprite_list)
         self.add_component(character)
 
 class SyormaCharacterComponent(CharacterComponent):
-    def __init__(self, stats, game_object=None, controls=None):
+    def __init__(self, stats, game_object=None, controls=None, sprite_list=None):
         super().__init__(game_object, controls)
         self.stats = stats
         self.speed = stats.speed
@@ -47,6 +48,21 @@ class SyormaCharacterComponent(CharacterComponent):
 
         self.attack_animation_started = False
         self.last_frame_index = 0
+        self.sprite_list = sprite_list
+
+    def start(self):
+        super().start()
+        hurtbox = HitboxComponent(HitboxType.HURT, damage=0, width=100, height=150, offset_x=0, offset_y=0, sprite_list=self.sprite_list)
+        hurtbox.active = True
+        self.add_hitbox(hurtbox)
+        self.punch1_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=60, height=60, offset_x=70, offset_y=0, sprite_list=self.sprite_list, knockback_force=150, hitstun_duration=0.3)
+        self.add_hitbox(self.punch1_hitbox)
+        self.punch2_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=60, height=60, offset_x=70, offset_y=0, sprite_list=self.sprite_list, knockback_force=180, hitstun_duration=0.4)
+        self.add_hitbox(self.punch2_hitbox)
+        self.kick_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 1.5, width=70, height=70, offset_x=80, offset_y=0, sprite_list=self.sprite_list, knockback_force=300, hitstun_duration=0.6)
+        self.add_hitbox(self.kick_hitbox)
+        self.uppercut_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 2, width=50, height=80, offset_x=40, offset_y=-20, sprite_list=self.sprite_list, knockback_force=450, hitstun_duration=0.8)
+        self.add_hitbox(self.uppercut_hitbox)
 
     def on_draw(self):
         super().on_draw()
@@ -94,12 +110,16 @@ class SyormaCharacterComponent(CharacterComponent):
 
         if self.combo_step == 1:
             self.change_state(CharacterState.PUNCH1)
+            self.punch1_hitbox.activate(0.2)
         elif self.combo_step == 2:
             self.change_state(CharacterState.PUNCH2)
+            self.punch2_hitbox.activate(0.2)
         elif self.combo_step == 3:
             self.change_state(CharacterState.PUNCH1)
+            self.punch1_hitbox.activate(0.2)
         elif self.combo_step == 4:
             self.change_state(CharacterState.KICK)
+            self.kick_hitbox.activate(0.3)
             self.combo_step = 0
         else:
             self.combo_step = 0
@@ -112,19 +132,20 @@ class SyormaCharacterComponent(CharacterComponent):
             return
 
         self.change_state(CharacterState.UPPERCUT)
+        self.uppercut_hitbox.activate(0.5)
         if self.is_on_ground:
             self.velocity_y = 300
             self.is_on_ground = False
         self.velocity_x = 0
         self.uppercut_cooldown = self.uppercut_cooldown_time
 
-    def take_damage(self, damage: float):
+    def take_damage(self, damage: float, knockback_force: float = 0, hitstun_duration: float = 0.5):
+        super().take_damage(damage, knockback_force, hitstun_duration)
         self.rage += damage
         if self.rage > 100:
             self.rage = 100
 
     def deal_damage(self, target, damage: float):
-        """Deal damage to another character"""
         if target and hasattr(target, 'take_damage'):
             target.take_damage(damage)
 
@@ -138,6 +159,7 @@ class SyormaCharacterComponent(CharacterComponent):
                 self.game_object.transform.scale_y = self.base_scale * 1.2
             if self.sprite_renderer and self.sprite_renderer.sprite:
                 self.sprite_renderer.sprite.scale = self.base_scale * 1.2
+            self._setup_animations()
 
     def _get_frame_durations(self, state: CharacterState, frame_count: int) -> list[float]:
         if state == CharacterState.IDLE:
@@ -183,7 +205,7 @@ class SyormaCharacterComponent(CharacterComponent):
             frame_paths = []
             for filename in filenames:
                 if self.is_awoken:
-                    awoken_path = os.path.join(assets_dir, "Awoken", filename)
+                    awoken_path = os.path.join(assets_dir, "awk", filename)
                     if os.path.exists(awoken_path):
                         frame_paths.append(awoken_path)
                         continue

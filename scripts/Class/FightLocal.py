@@ -41,7 +41,8 @@ class FightLocal(arcade.View):
             'right': arcade.key.D,
             'jump': arcade.key.W,
             'attack': arcade.key.E,
-            'uppercut': arcade.key.Q
+            'uppercut': arcade.key.Q,
+            'awaken': arcade.key.SPACE
         }
 
         player2_controls = {
@@ -49,17 +50,23 @@ class FightLocal(arcade.View):
             'right': arcade.key.NUM_6,
             'jump': arcade.key.NUM_8,
             'attack': arcade.key.NUM_9,
-            'uppercut': arcade.key.NUM_7
+            'uppercut': arcade.key.NUM_7,
+            'awaken': arcade.key.SPACE
         }
 
-        self.syorma1 = Syorma("Syorma1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=4.0,
+        self.syorma1 = Syorma("Syorma1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
                               controls=player1_controls)
         self.game_objects.append(self.syorma1)
         self.players.append(self.syorma1)
-        self.syorma2 = Syorma("Syorma2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=4.0,
+        self.syorma2 = Syorma("Syorma2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
                               controls=player2_controls)
         self.game_objects.append(self.syorma2)
         self.players.append(self.syorma2)
+
+        self.arena_left = 50
+        self.arena_right = WIDTH - 50
+        self.arena_top = HEIGHT - 50
+        self.arena_bottom = 150
 
     def on_draw(self):
         self.clear()
@@ -103,6 +110,30 @@ class FightLocal(arcade.View):
     def on_update(self, delta_time):
         for obj in self.game_objects:
             obj.update(delta_time)
+
+        if self.syorma1 and self.syorma2:
+            char_comp1 = self.syorma1.get_component(CharacterComponent)
+            char_comp2 = self.syorma2.get_component(CharacterComponent)
+
+            if char_comp1 and char_comp2:
+                old_facing1 = char_comp1.facing_right
+                if self.syorma1.transform.position.x < self.syorma2.transform.position.x:
+                    char_comp1.facing_right = True
+                else:
+                    char_comp1.facing_right = False
+
+                old_facing2 = char_comp2.facing_right
+                if self.syorma2.transform.position.x < self.syorma1.transform.position.x:
+                    char_comp2.facing_right = True
+                else:
+                    char_comp2.facing_right = False
+
+                if old_facing1 != char_comp1.facing_right and char_comp1.sprite_renderer and char_comp1.sprite_renderer.sprite:
+                    char_comp1.sprite_renderer.sprite.scale_x = -abs(char_comp1.sprite_renderer.sprite.scale_x) if not char_comp1.facing_right else abs(char_comp1.sprite_renderer.sprite.scale_x)
+                if old_facing2 != char_comp2.facing_right and char_comp2.sprite_renderer and char_comp2.sprite_renderer.sprite:
+                    char_comp2.sprite_renderer.sprite.scale_x = -abs(char_comp2.sprite_renderer.sprite.scale_x) if not char_comp2.facing_right else abs(char_comp2.sprite_renderer.sprite.scale_x)
+
+        self._check_hitbox_collisions()
 
         Middle = self.syorma1.transform.position.lerp(self.syorma2.transform.position,0.5)
 
@@ -218,3 +249,37 @@ class FightLocal(arcade.View):
                     (rage_right_left, rage_bar_bottom + rage_bar_height)
                 ]
                 arcade.draw_polygon_filled(rage_right_points, arcade.color.PURPLE)
+
+    def _check_hitbox_collisions(self):
+        if not self.syorma1 or not self.syorma2:
+            return
+
+        char_comp1 = self.syorma1.get_component(CharacterComponent)
+        char_comp2 = self.syorma2.get_component(CharacterComponent)
+
+        if not char_comp1 or not char_comp2:
+            return
+
+        attack_hitboxes1 = char_comp1.get_attack_hitboxes()
+        hurtbox2 = char_comp2.get_hurt_hitbox()
+        for attack_hitbox in attack_hitboxes1:
+            if hurtbox2:
+                if attack_hitbox.check_collision(hurtbox2):
+                    char_comp2.take_damage(attack_hitbox.damage, attack_hitbox.knockback_force, attack_hitbox.hitstun_duration)
+                    attack_hitbox.active = False
+
+        attack_hitboxes2 = char_comp2.get_attack_hitboxes()
+        hurtbox1 = char_comp1.get_hurt_hitbox()
+        for attack_hitbox in attack_hitboxes2:
+            if hurtbox1:
+                if attack_hitbox.check_collision(hurtbox1):
+                    char_comp1.take_damage(attack_hitbox.damage, attack_hitbox.knockback_force, attack_hitbox.hitstun_duration)
+                    attack_hitbox.active = False
+
+        if char_comp1.lives <= 0 or char_comp2.lives <= 0:
+            self._game_over()
+
+    def _game_over(self):
+        from scripts.Menu import Menu
+        menu = Menu(self.window)
+        self.window.show_view(menu)

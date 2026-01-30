@@ -7,7 +7,7 @@ from scripts.Class.Tween import TweenManager
 
 class Game(arcade.Window):
     def __init__(self, title: str):
-        super().__init__(WIDTH, HEIGHT, title, resizable=False, antialiasing=False, fullscreen=True)
+        super().__init__(WIDTH, HEIGHT, title, resizable=False, antialiasing=False, fullscreen=False)
         arcade.set_background_color(arcade.color.BLACK)
 
     def setup(self):
