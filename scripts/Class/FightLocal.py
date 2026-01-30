@@ -104,6 +104,10 @@ class FightLocal(arcade.View):
         for obj in self.game_objects:
             obj.update(delta_time)
 
+        Middle = self.syorma1.transform.position.lerp(self.syorma2.transform.position,0.5)
+
+        self.world_camera.position = (self.world_camera.position.lerp(Middle, 0.02) * arcade.Vec2(1,0)) + arcade.Vec2(0,self.world_camera.viewport.height//2)
+
     def on_key_press(self, key: int, modifiers: int):
         self.keys_pressed.add(key)
         if key == arcade.key.ESCAPE:
