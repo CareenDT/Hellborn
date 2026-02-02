@@ -1,0 +1,11 @@
+{
+  "volume": 0.9,
+  "controls": {
+    "jump": "w",
+    "sit": "s",
+    "backward": "a",
+    "forward": "d",
+    "hand strike": "e",
+    "kick": "q"
+  }
+}
