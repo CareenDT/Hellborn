@@ -1,5 +1,5 @@
 {
-  "volume": 1,
+  "volume": 0.9,
   "controls": {
     "player_1": {
       "jump": "w",

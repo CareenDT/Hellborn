@@ -116,9 +116,9 @@ class ControlsSettingsObject(arcade.View):
 
         if self.waiting_for_key:
             waiting_name = action_names[action_keys.index(
-                self.waiting_for_key)] if self.waiting_for_key in action_keys else self.waiting_for_key
+                self.waiting_for_key)]
             arcade.draw_text(f"Нажмите клавишу для: {waiting_name}",
-                             self.width // 2, self.height * 0.1,
+                             self.width // 2, self.height * 0.8,
                              arcade.color.RED, 30, anchor_x="center", anchor_y="center")
 
     def onBtn_Click(self, btn):
