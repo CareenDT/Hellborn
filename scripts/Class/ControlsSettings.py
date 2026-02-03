@@ -136,9 +136,10 @@ class ControlsSettingsObject(arcade.View):
     def on_action_click(self, action):
         self.waiting_for_key = action
 
-    def on_key_press(self, key, symbol):
-        if key == arcade.key.ESCAPE:
+    def on_key_press(self, symbol, modifiers):
+        if symbol == arcade.key.ESCAPE:
             self.waiting_for_key = False
+
         if self.waiting_for_key:
             key_char = chr(symbol)
             self.settings["controls"][self.player][self.waiting_for_key] = key_char

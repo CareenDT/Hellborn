@@ -2,10 +2,10 @@
   "volume": 0.9,
   "controls": {
     "player_1": {
-      "jump": "w",
+      "jump": "a",
       "sit": "s",
-      "backward": "a",
-      "forward": "d",
+      "backward": "d",
+      "forward": "s",
       "hand strike": "e",
       "kick": "q"
     },
