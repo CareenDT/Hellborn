@@ -24,14 +24,25 @@ class Game(arcade.Window):
             settings = {
                 "volume": 1,
                 "controls":
-                    {
-                    "jump": "w",
-                    "sit": "s",
-                    "backward": "a",
-                    "forward": "d",
-                    "hand strike": "e",
-                    "kick": "q"
-                }
+                    {'player_1':
+                        {
+                            "jump": "w",
+                            "sit": "s",
+                            "backward": "a",
+                            "forward": "d",
+                            "hand strike": "e",
+                            "kick": "q"
+                        },
+                    'player_2':
+                        {
+                            "jump": "i",
+                            "sit": "k",
+                            "backward": "j",
+                            "forward": "l",
+                            "hand strike": "o",
+                            "kick": "u"
+                        },
+                    }
             }
             with open(self.file_name, 'w', encoding='utf-8') as f:
                 json.dump(settings, f, indent=2)
@@ -49,10 +60,12 @@ class Game(arcade.Window):
             menu_view = MenuObject(self)
             self.show_view(menu_view)
 
+
 def main():
     game = Game("HellBorn")
     game.setup()
     arcade.run()
+
 
 if __name__ == "__main__":
     main()

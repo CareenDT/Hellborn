@@ -43,6 +43,13 @@ class SoundSettingsObject(arcade.View):
 
         self.texture = arcade.load_texture("assets/images/down_btn.png").flip_horizontally()
 
+        self.s_frame = GameObject("Sound_frame", Transform())
+        self.s_frame.add_component(ScreenRelativeTransform(self.settings_panel, -0.8, 0.6, 1, 1))
+        s_frame_renderer = SpriteRendererComponent("assets/images/sound_frame.png", 1, self.Object_Batch)
+        s_frame_renderer.set_custom_size(btn_width * 0.06, btn_height * 0.2)
+        self.s_frame.add_component(s_frame_renderer)
+        self.game_objects.append(self.s_frame)
+
         self.down_btn = GameObject("down", Transform())
         self.down_btn.add_component(ScreenRelativeTransform(self.settings_panel, -0.2, -0.06, 1, 1))
         btn_down_render = SpriteRendererComponent("assets/images/down_btn.png", 1, self.Object_Batch)
@@ -51,7 +58,7 @@ class SoundSettingsObject(arcade.View):
         self.down_btn.add_component(btn_down_render)
         self.down_btn.add_component(ButtonComponent(self, self.down_btn, "down",
                                                      on_click=lambda: self.onBtn_Click("down"),
-                                                     normal_texture_path="assets/images/down_btn.png"))
+                                                    normal_texture_path="assets/images/down_btn.png"))
         self.game_objects.append(self.down_btn)
 
         self.up_btn = GameObject("up", Transform())

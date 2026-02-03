@@ -2,6 +2,8 @@ import arcade
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
 from scripts.Class.SoundSettings import SoundSettingsObject
+from scripts.Class.ControlsSettings import ControlsSettingsObject
+
 
 class SettingsObject(arcade.View):
     def __init__(self, window):
@@ -32,34 +34,41 @@ class SettingsObject(arcade.View):
         self.title.add_component(title_renderer)
         self.game_objects.append(self.title)
 
+        self.s_frame = GameObject("Settings_frame", Transform())
+        self.s_frame.add_component(ScreenRelativeTransform(self.settings_panel, -0.8, 0.6, 1, 1))
+        s_frame_renderer = SpriteRendererComponent("assets/images/settings_frame.png", 1, self.Object_Batch)
+        s_frame_renderer.set_custom_size(btn_width * 0.06, btn_height * 0.2)
+        self.s_frame.add_component(s_frame_renderer)
+        self.game_objects.append(self.s_frame)
+
         self.btn_music = GameObject("Music", Transform())
         self.btn_music.add_component(ScreenRelativeTransform(self.settings_panel, 0, 0.15, 0.8, 0.8))
-        btn_music_renderer = SpriteRendererComponent("assets/images/settings.png", 1, self.Object_Batch)
+        btn_music_renderer = SpriteRendererComponent("assets/images/sound_settings.png", 1, self.Object_Batch)
         btn_music_renderer.set_custom_size(btn_width, btn_height)
         self.btn_music.add_component(btn_music_renderer)
         self.btn_music.add_component(ButtonComponent(self, self.btn_music, "Music",
                                                      on_click=lambda: self.onBtn_Click("Music"),
-                                                     normal_texture_path="assets/images/settings.png"))
+                                                     normal_texture_path="assets/images/sound_settings.png"))
         self.game_objects.append(self.btn_music)
 
         self.btn_customization = GameObject("Customization", Transform())
         self.btn_customization.add_component(ScreenRelativeTransform(self.settings_panel, 0, -0.15, 0.8, 0.8))
-        btn_customization_renderer = SpriteRendererComponent("assets/images/settings.png", 1, self.Object_Batch)
+        btn_customization_renderer = SpriteRendererComponent("assets/images/keys_setting.png", 1, self.Object_Batch)
         btn_customization_renderer.set_custom_size(btn_width, btn_height)
         self.btn_customization.add_component(btn_customization_renderer)
         self.btn_customization.add_component(ButtonComponent(self, self.btn_customization, "Customization",
-                                                    on_click=lambda: self.onBtn_Click("Customization"),
-                                                    normal_texture_path="assets/images/settings.png"))
+                                                             on_click=lambda: self.onBtn_Click("Customization"),
+                                                             normal_texture_path="assets/images/keys_setting.png"))
         self.game_objects.append(self.btn_customization)
 
         self.btn_back = GameObject("Back", Transform())
         self.btn_back.add_component(ScreenRelativeTransform(self.settings_panel, 0, -0.45, 0.8, 0.8))
-        btn_back_renderer = SpriteRendererComponent("assets/images/EXIT.png", 1, self.Object_Batch)
+        btn_back_renderer = SpriteRendererComponent("assets/images/return.png", 1, self.Object_Batch)
         btn_back_renderer.set_custom_size(btn_width, btn_height)
         self.btn_back.add_component(btn_back_renderer)
         self.btn_back.add_component(ButtonComponent(self, self.btn_back, "Back",
                                                     on_click=lambda: self.onBtn_Click("Back"),
-                                                    normal_texture_path="assets/images/EXIT.png"))
+                                                    normal_texture_path="assets/images/return.png"))
         self.game_objects.append(self.btn_back)
 
     def on_draw(self):
@@ -78,7 +87,8 @@ class SettingsObject(arcade.View):
             sound = SoundSettingsObject(self.window)
             self.window.show_view(sound)
         elif btn == "Customization":
-            pass
+            custom_keys = ControlsSettingsObject(self.window)
+            self.window.show_view(custom_keys)
 
     def on_update(self, delta_time):
         self.time_elapsed += delta_time
