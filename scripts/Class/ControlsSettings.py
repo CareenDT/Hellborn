@@ -102,8 +102,8 @@ class ControlsSettingsObject(arcade.View):
                          anchor_y="center", font_name="Tahoma")
 
         y_positions = [0.58, 0.51, 0.44, 0.37, 0.3, 0.23]
-        action_names = ["Прыжок", "Присед", "Назад", "Вперед", "Удар рукой", "Удар ногой"]
-        action_keys = ["jump", "sit", "backward", "forward", "hand strike", "kick"]
+        action_names = ["Прыжок", "Присед", "Назад", "Вперед", "Удар рукой", "Апперкот"]
+        action_keys = ["jump", "sit", "backward", "forward", "hand strike", "uppercut"]
 
         for i in range(len(action_names)):
             arcade.draw_text(action_names[i], self.width * 0.38, self.height * y_positions[i],

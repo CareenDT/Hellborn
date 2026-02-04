@@ -31,7 +31,7 @@ class Game(arcade.Window):
                             "backward": "a",
                             "forward": "d",
                             "hand strike": "e",
-                            "kick": "q"
+                            "uppercut": "q"
                         },
                     'player_2':
                         {
@@ -40,7 +40,7 @@ class Game(arcade.Window):
                             "backward": "j",
                             "forward": "l",
                             "hand strike": "o",
-                            "kick": "u"
+                            "uppercut": "u"
                         },
                     }
             }

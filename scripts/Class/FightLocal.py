@@ -3,10 +3,43 @@ from scripts.Class.Character.CharacterComponent import CharacterComponent
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
 from scripts.Class.Character.Syorma import Syorma
-from scripts.globals import WIDTH, HEIGHT
+from scripts.globals import WIDTH, HEIGHT, FILE_NAME
+import json
+
+
+def key_arcade(key):
+    key_char = key.lower()
+    if key_char == 'a': return arcade.key.A
+    if key_char == 'b': return arcade.key.B
+    if key_char == 'c': return arcade.key.C
+    if key_char == 'd': return arcade.key.D
+    if key_char == 'e': return arcade.key.E
+    if key_char == 'f': return arcade.key.F
+    if key_char == 'g': return arcade.key.G
+    if key_char == 'h': return arcade.key.H
+    if key_char == 'i': return arcade.key.I
+    if key_char == 'j': return arcade.key.J
+    if key_char == 'k': return arcade.key.K
+    if key_char == 'l': return arcade.key.L
+    if key_char == 'm': return arcade.key.M
+    if key_char == 'n': return arcade.key.N
+    if key_char == 'o': return arcade.key.O
+    if key_char == 'p': return arcade.key.P
+    if key_char == 'q': return arcade.key.Q
+    if key_char == 'r': return arcade.key.R
+    if key_char == 's': return arcade.key.S
+    if key_char == 't': return arcade.key.T
+    if key_char == 'u': return arcade.key.U
+    if key_char == 'v': return arcade.key.V
+    if key_char == 'w': return arcade.key.W
+    if key_char == 'x': return arcade.key.X
+    if key_char == 'y': return arcade.key.Y
+    if key_char == 'z': return arcade.key.Z
+    return None
+
 
 class FightLocal(arcade.View):
-    def __init__(self, window: arcade.Window):
+    def __init__(self, window: arcade.Window, pl_1, pl_2):
         super().__init__(window)
         self.window = window
         self.game_objects = []
@@ -18,6 +51,10 @@ class FightLocal(arcade.View):
         self.gui_camera = arcade.Camera2D()
         self._setup()
 
+        self.pl_1 = pl_1
+        self.pl_2 = pl_2
+        print(self.pl_1, self.pl_2)
+
     def _setup(self):
         bg = GameObject("Background", Transform(WIDTH // 2, HEIGHT // 2))
         bg_renderer = SpriteRendererComponent(
@@ -27,6 +64,10 @@ class FightLocal(arcade.View):
         )
         bg.add_component(bg_renderer)
         self.game_objects.append(bg)
+
+        with open(FILE_NAME, "r", encoding="utf-8") as f:
+            self.settings = json.load(f)
+
         if bg_renderer.sprite:
             original_width = bg_renderer.sprite.texture.width
             original_height = bg_renderer.sprite.texture.height
@@ -37,20 +78,20 @@ class FightLocal(arcade.View):
             bg_renderer.sprite.center_y = HEIGHT // 2
 
         player1_controls = {
-            'left': arcade.key.A,
-            'right': arcade.key.D,
-            'jump': arcade.key.W,
-            'attack': arcade.key.E,
-            'uppercut': arcade.key.Q,
+            'left': key_arcade(self.settings['controls']["player_1"]["backward"]),
+            'right': key_arcade(self.settings['controls']["player_1"]["forward"]),
+            'jump': key_arcade(self.settings['controls']["player_1"]["jump"]),
+            'attack': key_arcade(self.settings['controls']["player_1"]["hand strike"]),
+            'uppercut': key_arcade(self.settings['controls']["player_1"]["uppercut"]),
             'awaken': arcade.key.SPACE
         }
 
         player2_controls = {
-            'left': arcade.key.NUM_4,
-            'right': arcade.key.NUM_6,
-            'jump': arcade.key.NUM_8,
-            'attack': arcade.key.NUM_9,
-            'uppercut': arcade.key.NUM_7,
+            'left': key_arcade(self.settings['controls']["player_2"]["backward"]),
+            'right': key_arcade(self.settings['controls']["player_2"]["forward"]),
+            'jump': key_arcade(self.settings['controls']["player_2"]["jump"]),
+            'attack': key_arcade(self.settings['controls']["player_2"]["hand strike"]),
+            'uppercut': key_arcade(self.settings['controls']["player_2"]["uppercut"]),
             'awaken': arcade.key.SPACE
         }
 

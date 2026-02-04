@@ -1,13 +1,13 @@
 {
-  "volume": 0.9,
+  "volume": 1,
   "controls": {
     "player_1": {
-      "jump": "a",
+      "jump": "w",
       "sit": "s",
-      "backward": "d",
-      "forward": "s",
+      "backward": "a",
+      "forward": "d",
       "hand strike": "e",
-      "kick": "q"
+      "uppercut": "q"
     },
     "player_2": {
       "jump": "i",
@@ -15,7 +15,7 @@
       "backward": "j",
       "forward": "l",
       "hand strike": "o",
-      "kick": "u"
+      "uppercut": "u"
     }
   }
 }
