@@ -10,8 +10,6 @@ class Syorma(GameObject):
         super().__init__(name, transform)
 
         default_image = "assets/images/characters/syorma/Base/base.png"
-        if not os.path.exists(default_image):
-            default_image = "assets/Preview.png"
 
         sprite_renderer = SpriteRendererComponent(
             image_path=default_image,
@@ -23,7 +21,7 @@ class Syorma(GameObject):
         stats = CharacterStats(
             max_health=120,
             base_damage=12,
-            speed=180,
+            speed=260,
             defense=0.8
         )
 
@@ -48,20 +46,19 @@ class SyormaCharacterComponent(CharacterComponent):
 
         self.attack_animation_started = False
         self.last_frame_index = 0
-        self.sprite_list = sprite_list
 
     def start(self):
         super().start()
-        hurtbox = HitboxComponent(HitboxType.HURT, damage=0, width=100, height=150, offset_x=0, offset_y=0, sprite_list=self.sprite_list)
+        hurtbox = HitboxComponent(HitboxType.HURT, damage=0, width=150, height=200, offset_x=0, offset_y=0)
         hurtbox.active = True
         self.add_hitbox(hurtbox)
-        self.punch1_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=60, height=60, offset_x=70, offset_y=0, sprite_list=self.sprite_list, knockback_force=150, hitstun_duration=0.3)
+        self.punch1_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=80, height=60, offset_x=80, offset_y=0, knockback_force=150, hitstun_duration=0.3)
         self.add_hitbox(self.punch1_hitbox)
-        self.punch2_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=60, height=60, offset_x=70, offset_y=0, sprite_list=self.sprite_list, knockback_force=180, hitstun_duration=0.4)
+        self.punch2_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=75, height=60, offset_x=72.5, offset_y=0, knockback_force=180, hitstun_duration=0.4)
         self.add_hitbox(self.punch2_hitbox)
-        self.kick_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 1.5, width=70, height=70, offset_x=80, offset_y=0, sprite_list=self.sprite_list, knockback_force=300, hitstun_duration=0.6)
+        self.kick_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 1.5, width=100, height=70, offset_x=95, offset_y=0, knockback_force=300, hitstun_duration=0.6)
         self.add_hitbox(self.kick_hitbox)
-        self.uppercut_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 2, width=50, height=80, offset_x=40, offset_y=-20, sprite_list=self.sprite_list, knockback_force=450, hitstun_duration=0.8)
+        self.uppercut_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 2, width=50, height=80, offset_x=40, offset_y=-20, knockback_force=450, hitstun_duration=0.8)
         self.add_hitbox(self.uppercut_hitbox)
 
     def on_draw(self):
@@ -154,11 +151,6 @@ class SyormaCharacterComponent(CharacterComponent):
             self.is_awoken = True
             self.rage = 0
             self.speed = self.base_speed * 1.5
-            if self.game_object:
-                self.game_object.transform.scale_x = self.base_scale * 1.2
-                self.game_object.transform.scale_y = self.base_scale * 1.2
-            if self.sprite_renderer and self.sprite_renderer.sprite:
-                self.sprite_renderer.sprite.scale = self.base_scale * 1.2
             self._setup_animations()
 
     def _get_frame_durations(self, state: CharacterState, frame_count: int) -> list[float]:
@@ -179,36 +171,32 @@ class SyormaCharacterComponent(CharacterComponent):
 
     def _setup_animations(self):
         super()._setup_animations()
-        assets_dir = "assets/images/characters/syorma/"
+        assets_dir = f"assets/images/characters/syorma/{"awk/" if self.is_awoken else "Base/"}"
 
         animations = {
-            CharacterState.IDLE: ["Base/base.png", "Base/idle/1.png", "Base/idle/2.png"],
-            CharacterState.WALK_FORWARD: ["Base/base.png", "Base/walk/1.png", "Base/walk/2.png"],
-            CharacterState.WALK_BACKWARD: ["Base/base.png", "Base/walk_back/1.png", "Base/walk_back/2.png"],
-            CharacterState.PUNCH1: ["Base/base.png", "Base/M1_1/1.png", "Base/M1_1/2.png", "Base/M1_1/1.png"],
-            CharacterState.PUNCH2: ["Base/base.png", "Base/M1_2/1.png", "Base/M1_2/2.png", "Base/M1_2/1.png"],
-            CharacterState.KICK: ["Base/base.png", "Base/M1_4/1.png", "Base/M1_4/2.png", "Base/M1_4/1.png"],
+            CharacterState.IDLE: ["base.png", "idle/1.png", "idle/2.png"],
+            CharacterState.WALK_FORWARD: ["base.png", "walk/1.png", "walk/2.png"],
+            CharacterState.WALK_BACKWARD: ["base.png", "walk_back/1.png", "walk_back/2.png"],
+            CharacterState.PUNCH1: ["base.png", "M1_1/1.png", "M1_1/2.png", "M1_1/1.png"],
+            CharacterState.PUNCH2: ["base.png", "M1_2/1.png", "M1_2/2.png", "M1_2/1.png"],
+            CharacterState.KICK: ["base.png", "M1_4/1.png", "M1_4/2.png", "M1_4/1.png"],
             CharacterState.UPPERCUT: [
-                "Base/base.png",
-                "Base/uppercut/1.png",
-                "Base/uppercut/2.png",
-                "Base/uppercut/3.png",
-                "Base/uppercut/4.png",
-                "Base/uppercut/5.png",
-                "Base/uppercut/6.png",
-                "Base/uppercut/7.png"
+                "base.png",
+                "uppercut/1.png",
+                "uppercut/2.png",
+                "uppercut/3.png",
+                "uppercut/4.png",
+                "uppercut/5.png",
+                "uppercut/6.png",
+                "uppercut/7.png"
             ],
-            CharacterState.JUMP: ["Base/jump/1.png", "Base/jump/2.png", "Base/jump/1.png"],
+            CharacterState.JUMP: ["jump/1.png", "jump/2.png", "jump/1.png"],
         }
 
         for state, filenames in animations.items():
             frame_paths = []
             for filename in filenames:
-                if self.is_awoken:
-                    awoken_path = os.path.join(assets_dir, "awk", filename)
-                    if os.path.exists(awoken_path):
-                        frame_paths.append(awoken_path)
-                        continue
+
                 full_path = os.path.join(assets_dir, filename)
                 if os.path.exists(full_path):
                     frame_paths.append(full_path)

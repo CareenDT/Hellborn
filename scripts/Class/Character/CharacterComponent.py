@@ -132,15 +132,13 @@ class CharacterComponent(Component):
 
             GRAVITY = 500
             self.velocity_y -= GRAVITY * delta_time
-            if t.y <= self.ground_level:
-                t.y = self.ground_level
+            if self.sprite_renderer.sprite.bottom <= self.ground_level:
+                t.y += self.ground_level - self.sprite_renderer.sprite.bottom
                 self.velocity_y = 0
                 self.is_on_ground = True
 
             arena_left = 50
             arena_right = 1920 - 50
-            arena_top = 1080 - 50
-            arena_bottom = 150
 
             if t.x < arena_left:
                 t.x = arena_left
@@ -148,10 +146,6 @@ class CharacterComponent(Component):
             elif t.x > arena_right:
                 t.x = arena_right
                 self.velocity_x = 0
-
-            if t.y > arena_top:
-                t.y = arena_top
-                self.velocity_y = 0
     
     def move(self, direction: int):
         if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT]:

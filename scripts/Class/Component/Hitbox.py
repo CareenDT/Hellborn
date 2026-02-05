@@ -6,7 +6,7 @@ class HitboxType:
     HURT = "hurt"
 
 class HitboxComponent(Component):
-    def __init__(self, hitbox_type: str, damage: float = 0, width: float = 50, height: float = 50, offset_x: float = 0, offset_y: float = 0, sprite_list=None, game_object=None, knockback_force: float = 0, hitstun_duration: float = 0.5):
+    def __init__(self, hitbox_type: str, damage: float = 0, width: float = 50, height: float = 50, offset_x: float = 0, offset_y: float = 0, game_object=None, knockback_force: float = 0, hitstun_duration: float = 0.5):
         super().__init__(game_object)
         self.hitbox_type = hitbox_type
         self.damage = damage
@@ -17,8 +17,6 @@ class HitboxComponent(Component):
         self.active = False
         self.timer = 0
         self.sprite = arcade.Sprite("assets/HITBOX.png")
-        if sprite_list is not None:
-            sprite_list.append(self.sprite)
         self.sprite.width = self.width
         self.sprite.height = self.height
         self.knockback_force = knockback_force
