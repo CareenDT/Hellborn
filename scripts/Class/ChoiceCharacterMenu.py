@@ -27,12 +27,12 @@ class CharacterChoiceObject(arcade.View):
         btn_width = 0.8 * panel_width
         btn_height = btn_width * (32 / 128)
 
-        self.title = GameObject("Title", Transform())
-        self.title.add_component(ScreenRelativeTransform(self.selection_panel, 0, 0.4, 1, 1))
-        title_renderer = SpriteRendererComponent("assets/images/hellborn.png", 1, self.Object_Batch)
-        title_renderer.set_custom_size(btn_width * 1.2, btn_height * 0.9)
-        self.title.add_component(title_renderer)
-        self.game_objects.append(self.title)
+        #self.title = GameObject("Title", Transform())
+        #self.title.add_component(ScreenRelativeTransform(self.selection_panel, 0, 0.4, 1, 1))
+        #title_renderer = SpriteRendererComponent("assets/images/hellborn.png", 1, self.Object_Batch)
+        #title_renderer.set_custom_size(btn_width * 1.2, btn_height * 0.9)
+        #self.title.add_component(title_renderer)
+        #self.game_objects.append(self.title)
 
         self.characters = ["Syorma", "ShadowTent", "DarkKnight"]
         self.path_textures = ["assets/images/down_btn.png", "assets/images/down_btn.png", "assets/images/down_btn.png"]
