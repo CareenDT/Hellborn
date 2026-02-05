@@ -49,6 +49,8 @@ class FightLocal(arcade.View):
         self.players = []
         self.world_camera = arcade.Camera2D()
         self.gui_camera = arcade.Camera2D()
+
+
         self._setup()
 
         self.pl_1 = pl_1
