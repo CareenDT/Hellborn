@@ -1,8 +1,7 @@
 import arcade
 
-from Hellborn.scripts.Class.LoadingScreen import LoadingScreen
-from scripts.globals import HEIGHT, WIDTH, FILE_NAME
 from scripts.Class.LogoScreen import LogoScreen
+from scripts.globals import HEIGHT, WIDTH, FILE_NAME
 from scripts.Class.FightLocal import FightLocal
 from scripts.Menu import MenuObject
 from scripts.Class.Tween import TweenManager
@@ -16,8 +15,7 @@ class Game(arcade.Window):
         self.file_name = FILE_NAME
 
     def setup(self):
-        loading_screen = LoadingScreen(self)
-        loading_screen.setup()
+        loading_screen = LogoScreen(self)
         self.show_view(loading_screen)
 
         if not os.path.exists(self.file_name):
