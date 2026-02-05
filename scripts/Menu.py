@@ -3,6 +3,7 @@ import math
 from scripts.Transition import Transition
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
+from scripts.Class.Settings import SettingsObject
 
 class MenuObject(arcade.View):
     def __init__(self, window):
@@ -80,7 +81,8 @@ class MenuObject(arcade.View):
         elif btn == "Exit":
             arcade.close_window()
         elif btn == "Settings":
-            pass
+            settings = SettingsObject(self.window)
+            self.window.show_view(settings)
 
     def on_update(self, delta_time):
         self.time_elapsed += delta_time
