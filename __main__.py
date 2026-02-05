@@ -6,8 +6,8 @@ from scripts.Class.FightLocal import FightLocal
 from scripts.Menu import MenuObject
 from scripts.Class.Tween import TweenManager
 import os
-import json
-
+import json 
+#################
 class Game(arcade.Window):
     def __init__(self, title: str):
         super().__init__(WIDTH, HEIGHT, title, resizable=False, antialiasing=False, fullscreen=True)
