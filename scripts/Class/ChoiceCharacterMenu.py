@@ -35,7 +35,9 @@ class CharacterChoiceObject(arcade.View):
         #self.game_objects.append(self.title)
 
         self.characters = ["Syorma", "ShadowTent", "DarkKnight"]
-        self.path_textures = ["assets/images/down_btn.png", "assets/images/down_btn.png", "assets/images/down_btn.png"]
+        self.path_textures = ["assets/images/syrma.png",
+                              "assets/images/s_t.png",
+                              "assets/images/knight.png"]
         self.current_player = 1
         self.selected_characters = {1: None, 2: None}
         self.current_selection = 0
@@ -50,7 +52,7 @@ class CharacterChoiceObject(arcade.View):
                 ScreenRelativeTransform(self.selection_panel, (i - 1) * c_spacing, char_y, 0.25, 0.8))
 
             c_renderer = SpriteRendererComponent(self.path_textures[i], 1, self.Object_Batch)
-            c_renderer.set_custom_size(btn_width * 0.25, btn_height * 0.8)
+            c_renderer.set_custom_size(btn_width * 0.2, btn_height * 0.8)
             c_obj.add_component(c_renderer)
             self.game_objects.append(c_obj)
             self.c_sprites.append(c_obj)

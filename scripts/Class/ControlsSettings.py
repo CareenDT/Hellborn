@@ -141,13 +141,14 @@ class ControlsSettingsObject(arcade.View):
             self.waiting_for_key = False
 
         if self.waiting_for_key:
-            key_char = chr(symbol)
-            self.settings["controls"][self.player][self.waiting_for_key] = key_char
+            if symbol >= 97 and symbol <= 122:
+                key_char = chr(symbol)
+                self.settings["controls"][self.player][self.waiting_for_key] = key_char
 
-            with open(self.file_name, "w", encoding="utf-8") as f:
-                json.dump(self.settings, f, indent=2, ensure_ascii=False)
+                with open(self.file_name, "w", encoding="utf-8") as f:
+                    json.dump(self.settings, f, indent=2, ensure_ascii=False)
 
-            self.waiting_for_key = False
+                self.waiting_for_key = False
 
     def on_update(self, delta_time):
         self.time_elapsed += delta_time
