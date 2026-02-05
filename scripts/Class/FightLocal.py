@@ -3,10 +3,43 @@ from scripts.Class.Character.CharacterComponent import CharacterComponent
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
 from scripts.Class.Character.Syorma import Syorma
-from scripts.globals import WIDTH, HEIGHT
+from scripts.globals import WIDTH, HEIGHT, FILE_NAME
+import json
+
+
+def key_arcade(key):
+    key_char = key.lower()
+    if key_char == 'a': return arcade.key.A
+    if key_char == 'b': return arcade.key.B
+    if key_char == 'c': return arcade.key.C
+    if key_char == 'd': return arcade.key.D
+    if key_char == 'e': return arcade.key.E
+    if key_char == 'f': return arcade.key.F
+    if key_char == 'g': return arcade.key.G
+    if key_char == 'h': return arcade.key.H
+    if key_char == 'i': return arcade.key.I
+    if key_char == 'j': return arcade.key.J
+    if key_char == 'k': return arcade.key.K
+    if key_char == 'l': return arcade.key.L
+    if key_char == 'm': return arcade.key.M
+    if key_char == 'n': return arcade.key.N
+    if key_char == 'o': return arcade.key.O
+    if key_char == 'p': return arcade.key.P
+    if key_char == 'q': return arcade.key.Q
+    if key_char == 'r': return arcade.key.R
+    if key_char == 's': return arcade.key.S
+    if key_char == 't': return arcade.key.T
+    if key_char == 'u': return arcade.key.U
+    if key_char == 'v': return arcade.key.V
+    if key_char == 'w': return arcade.key.W
+    if key_char == 'x': return arcade.key.X
+    if key_char == 'y': return arcade.key.Y
+    if key_char == 'z': return arcade.key.Z
+    return None
+
 
 class FightLocal(arcade.View):
-    def __init__(self, window: arcade.Window):
+    def __init__(self, window: arcade.Window, pl_1, pl_2):
         super().__init__(window)
         self.window = window
         self.game_objects = []
@@ -14,15 +47,18 @@ class FightLocal(arcade.View):
         self.ui_sprite_list = arcade.SpriteList()
         self.keys_pressed = set()
         self.players = []
-
         self.world_camera = arcade.Camera2D()
         self.gui_camera = arcade.Camera2D()
 
 
         self._setup()
 
+        self.pl_1 = pl_1
+        self.pl_2 = pl_2
+        print(self.pl_1, self.pl_2)
+
     def _setup(self):
-        bg = GameObject("Background", Transform(WIDTH//2, HEIGHT//2))
+        bg = GameObject("Background", Transform(WIDTH // 2, HEIGHT // 2))
         bg_renderer = SpriteRendererComponent(
             "assets/arena.png",
             scale=1.0,
@@ -30,6 +66,10 @@ class FightLocal(arcade.View):
         )
         bg.add_component(bg_renderer)
         self.game_objects.append(bg)
+
+        with open(FILE_NAME, "r", encoding="utf-8") as f:
+            self.settings = json.load(f)
+
         if bg_renderer.sprite:
             original_width = bg_renderer.sprite.texture.width
             original_height = bg_renderer.sprite.texture.height
@@ -40,54 +80,103 @@ class FightLocal(arcade.View):
             bg_renderer.sprite.center_y = HEIGHT // 2
 
         player1_controls = {
-            'left': arcade.key.A,
-            'right': arcade.key.D,
-            'jump': arcade.key.W,
-            'attack': arcade.key.E,
-            'uppercut': arcade.key.Q
+            'left': key_arcade(self.settings['controls']["player_1"]["backward"]),
+            'right': key_arcade(self.settings['controls']["player_1"]["forward"]),
+            'jump': key_arcade(self.settings['controls']["player_1"]["jump"]),
+            'attack': key_arcade(self.settings['controls']["player_1"]["hand strike"]),
+            'uppercut': key_arcade(self.settings['controls']["player_1"]["uppercut"]),
+            'awaken': arcade.key.SPACE
         }
 
         player2_controls = {
-            'left': arcade.key.NUM_4,
-            'right': arcade.key.NUM_6,
-            'jump': arcade.key.NUM_8,
-            'attack': arcade.key.NUM_9,
-            'uppercut': arcade.key.NUM_7
+            'left': key_arcade(self.settings['controls']["player_2"]["backward"]),
+            'right': key_arcade(self.settings['controls']["player_2"]["forward"]),
+            'jump': key_arcade(self.settings['controls']["player_2"]["jump"]),
+            'attack': key_arcade(self.settings['controls']["player_2"]["hand strike"]),
+            'uppercut': key_arcade(self.settings['controls']["player_2"]["uppercut"]),
+            'awaken': arcade.key.SPACE
         }
 
-        self.syorma1 = Syorma("Syorma1", Transform(WIDTH//4, 500), self.Object_Batch, scale=4.0, controls=player1_controls)
+        self.syorma1 = Syorma("Syorma1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
+                              controls=player1_controls)
         self.game_objects.append(self.syorma1)
         self.players.append(self.syorma1)
-        self.syorma2 = Syorma("Syorma2", Transform(WIDTH*3//4, 500), self.Object_Batch, scale=4.0, controls=player2_controls)
+        self.syorma2 = Syorma("Syorma2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
+                              controls=player2_controls)
         self.game_objects.append(self.syorma2)
         self.players.append(self.syorma2)
 
+        self.arena_left = 50
+        self.arena_right = WIDTH - 50
+        self.arena_top = HEIGHT - 50
+        self.arena_bottom = 150
+
     def on_draw(self):
         self.clear()
-
         self.world_camera.use()
         for obj in self.game_objects:
             obj.draw()
         self.Object_Batch.draw(pixelated=True)
         arcade.draw_line(0, 150, WIDTH, 150, arcade.color.GREEN, 2)
-
         self.gui_camera.use()
         self.ui_sprite_list.clear()
-        
-
         current_width = self.window.width
         current_height = self.window.height
-
+        hp_bar_center_x = current_width // 2
+        hp_bar_center_y = current_height * 0.9
+        large_scale = 6.0
+        hp_bar_sprite = arcade.Sprite("assets/images/FightUi/hp_bar.png",
+                                      center_x=hp_bar_center_x,
+                                      center_y=hp_bar_center_y)
+        hp_bar_sprite.scale = large_scale
+        self.ui_sprite_list.append(hp_bar_sprite)
         if self.syorma1:
-            self._draw_player_ui(self.syorma1, current_width * 0.1, current_height * 0.9, "Player 1", arcade.color.BLUE, scale=1.5, flip=False)
+            char_comp1 = self.syorma1.get_component(CharacterComponent)
+            if char_comp1:
+                hp_percentage1 = char_comp1.health / char_comp1.max_health
+                self._draw_hp_fill(hp_bar_center_x, hp_bar_center_y, hp_percentage1,
+                                   arcade.color.YELLOW, large_scale, flip=False)
         if self.syorma2:
-            self._draw_player_ui(self.syorma2, current_width * 0.9, current_height * 0.9, "Player 2", arcade.color.RED, scale=1.5, flip=True)
-
+            char_comp2 = self.syorma2.get_component(CharacterComponent)
+            if char_comp2:
+                hp_percentage2 = char_comp2.health / char_comp2.max_health
+                self._draw_hp_fill(hp_bar_center_x, hp_bar_center_y, hp_percentage2,
+                                   arcade.color.YELLOW, large_scale, flip=True)
+        if self.syorma1:
+            self._draw_player_ui(self.syorma1, current_width * 0.1, current_height * 0.87,
+                                 "Player 1", arcade.color.PURPLE, scale=1, flip=False)
+        if self.syorma2:
+            self._draw_player_ui(self.syorma2, current_width * 0.9, current_height * 0.87,
+                                 "Player 2", arcade.color.YELLOW, scale=1, flip=True)
         self.ui_sprite_list.draw(pixelated=True)
 
     def on_update(self, delta_time):
         for obj in self.game_objects:
             obj.update(delta_time)
+
+        if self.syorma1 and self.syorma2:
+            char_comp1 = self.syorma1.get_component(CharacterComponent)
+            char_comp2 = self.syorma2.get_component(CharacterComponent)
+
+            if char_comp1 and char_comp2:
+                old_facing1 = char_comp1.facing_right
+                if self.syorma1.transform.position.x < self.syorma2.transform.position.x:
+                    char_comp1.facing_right = True
+                else:
+                    char_comp1.facing_right = False
+
+                old_facing2 = char_comp2.facing_right
+                if self.syorma2.transform.position.x < self.syorma1.transform.position.x:
+                    char_comp2.facing_right = True
+                else:
+                    char_comp2.facing_right = False
+
+                if old_facing1 != char_comp1.facing_right and char_comp1.sprite_renderer and char_comp1.sprite_renderer.sprite:
+                    char_comp1.sprite_renderer.sprite.scale_x = -abs(char_comp1.sprite_renderer.sprite.scale_x) if not char_comp1.facing_right else abs(char_comp1.sprite_renderer.sprite.scale_x)
+                if old_facing2 != char_comp2.facing_right and char_comp2.sprite_renderer and char_comp2.sprite_renderer.sprite:
+                    char_comp2.sprite_renderer.sprite.scale_x = -abs(char_comp2.sprite_renderer.sprite.scale_x) if not char_comp2.facing_right else abs(char_comp2.sprite_renderer.sprite.scale_x)
+
+        self._check_hitbox_collisions()
 
         Middle = self.syorma1.transform.position.lerp(self.syorma2.transform.position,0.5)
 
@@ -99,12 +188,10 @@ class FightLocal(arcade.View):
             from scripts.Menu import MenuObject
             menu_view = MenuObject(self.window)
             self.window.show_view(menu_view)
-
         if self.syorma1:
             char_comp1 = self.syorma1.get_component(CharacterComponent)
             if char_comp1:
                 char_comp1.handle_key_press(key)
-
         if self.syorma2:
             char_comp2 = self.syorma2.get_component(CharacterComponent)
             if char_comp2:
@@ -113,59 +200,129 @@ class FightLocal(arcade.View):
     def on_key_release(self, key: int, modifiers: int):
         if key in self.keys_pressed:
             self.keys_pressed.remove(key)
-
         if self.syorma1:
             char_comp1 = self.syorma1.get_component(CharacterComponent)
             if char_comp1:
                 char_comp1.handle_key_release(key)
-
         if self.syorma2:
             char_comp2 = self.syorma2.get_component(CharacterComponent)
             if char_comp2:
                 char_comp2.handle_key_release(key)
 
+    def _draw_hp_fill(self, center_x, center_y, hp_percentage, color, large_scale=6.0, flip=False):
+        bar_width = 180 * large_scale
+        bar_height = 6 * large_scale
+        bar_left = center_x - (bar_width / 2)
+        bar_bottom = center_y - (bar_height / 2)
+        if flip:
+            if hp_percentage > 0:
+                fill_width = hp_percentage * (bar_width / 2)
+                fill_left = center_x
+                points = [
+                    (fill_left, bar_bottom),
+                    (fill_left + fill_width, bar_bottom),
+                    (fill_left + fill_width, bar_bottom + bar_height),
+                    (fill_left, bar_bottom + bar_height)
+                ]
+                arcade.draw_polygon_filled(points, color)
+        else:
+            if hp_percentage > 0:
+                fill_width = hp_percentage * (bar_width / 2)
+                fill_left = bar_left
+                points = [
+                    (fill_left, bar_bottom),
+                    (fill_left + fill_width, bar_bottom),
+                    (fill_left + fill_width, bar_bottom + bar_height),
+                    (fill_left, bar_bottom + bar_height)
+                ]
+                arcade.draw_polygon_filled(points, color)
+
     def _draw_player_ui(self, character, x, y, player_label, color, scale=0.5, flip=False):
         char_comp = character.get_component(CharacterComponent)
         if not char_comp:
             return
-
-        bar_offset = 100 * scale if not flip else -100 * scale
-        fill_start = x + 50 * scale if not flip else x - 50 * scale
-        heart_start = x + 200 * scale if not flip else x - 200 * scale
-        heart_step = 30 * scale if not flip else -30 * scale
-
-        arcade.draw_text(player_label, x, y, color, 20 * scale)
-
-        hp_bar_sprite = arcade.Sprite("assets/images/FightUi/hp_bar.png", center_x=x + bar_offset, center_y=y - 20 * scale)
-        hp_bar_sprite.scale = scale
-        if flip:
-            hp_bar_sprite.scale_x = -scale
-        self.ui_sprite_list.append(hp_bar_sprite)
-
-        hp_percentage = char_comp.health / char_comp.max_health
-        hp_fill_width = 100 * scale * hp_percentage
-        fill_x = fill_start if not flip else fill_start - hp_fill_width
-        arcade.draw_rect_filled(arcade.rect.XYWH(fill_x, y - 20 * scale, hp_fill_width, 10 * scale), arcade.color.RED)
-
-        rage_bar_sprite = arcade.Sprite("assets/images/FightUi/rage_bar.png", center_x=x + bar_offset, center_y=y - 40 * scale)
-        rage_bar_sprite.scale = scale
-        if flip:
-            rage_bar_sprite.scale_x = -scale
-        self.ui_sprite_list.append(rage_bar_sprite)
-
-        rage_percentage = min(char_comp.rage / 100, 1.0)
-        rage_fill_width = 100 * scale * rage_percentage
-        fill_x = fill_start if not flip else fill_start - rage_fill_width
-        arcade.draw_rect_filled(arcade.rect.XYWH(fill_x, y - 40 * scale, rage_fill_width, 10 * scale), arcade.color.PURPLE)
-
+        arcade.draw_text(player_label, x, y, color, 20 * scale, anchor_x="center")
         for i in range(3):
-            heart_x = heart_start + i * heart_step
-            heart_y = y - 10 * scale
+            heart_x = x + (i - 1) * 35 * scale
+            heart_y = y + 30 * scale
             if i < char_comp.lives:
-                heart_sprite = arcade.Sprite("assets/images/FightUi/1hp.png", center_x=heart_x, center_y=heart_y)
+                heart_sprite = arcade.Sprite("assets/images/FightUi/1hp.png",
+                                             center_x=heart_x,
+                                             center_y=heart_y)
             else:
-                heart_sprite = arcade.Sprite("assets/images/FightUi/0hp.png", center_x=heart_x, center_y=heart_y)
+                heart_sprite = arcade.Sprite("assets/images/FightUi/0hp.png",
+                                             center_x=heart_x,
+                                             center_y=heart_y)
             heart_sprite.scale = scale
             if flip:
                 heart_sprite.scale_x = -scale
             self.ui_sprite_list.append(heart_sprite)
+        rage_y = 70
+        rage_x = self.window.width * 0.25 if not flip else self.window.width * 0.75
+        rage_bar_sprite = arcade.Sprite("assets/images/FightUi/rage_bar.png",
+                                        center_x=rage_x,
+                                        center_y=rage_y)
+        rage_bar_sprite.scale = 2.5
+        if flip:
+            rage_bar_sprite.scale_x = -2.5
+        self.ui_sprite_list.append(rage_bar_sprite)
+        rage_percentage = min(char_comp.rage / 100, 1.0)
+        rage_bar_width = 100 * 2.5
+        rage_bar_height = 10 * 2.5
+        rage_bar_left = rage_x - (rage_bar_width / 2)
+        rage_bar_bottom = rage_y - (rage_bar_height / 2)
+        if rage_percentage > 0:
+            rage_left_fill_width = min(rage_percentage, 0.5) * rage_bar_width
+            if rage_left_fill_width > 0:
+                rage_left_points = [
+                    (rage_bar_left, rage_bar_bottom),
+                    (rage_bar_left + rage_left_fill_width, rage_bar_bottom),
+                    (rage_bar_left + rage_left_fill_width, rage_bar_bottom + rage_bar_height),
+                    (rage_bar_left, rage_bar_bottom + rage_bar_height)
+                ]
+                arcade.draw_polygon_filled(rage_left_points, arcade.color.PURPLE)
+        if rage_percentage > 0.5:
+            rage_right_fill_width = (rage_percentage - 0.5) * rage_bar_width
+            if rage_right_fill_width > 0:
+                rage_right_left = rage_x
+                rage_right_points = [
+                    (rage_right_left, rage_bar_bottom),
+                    (rage_right_left + rage_right_fill_width, rage_bar_bottom),
+                    (rage_right_left + rage_right_fill_width, rage_bar_bottom + rage_bar_height),
+                    (rage_right_left, rage_bar_bottom + rage_bar_height)
+                ]
+                arcade.draw_polygon_filled(rage_right_points, arcade.color.PURPLE)
+
+    def _check_hitbox_collisions(self):
+        if not self.syorma1 or not self.syorma2:
+            return
+
+        char_comp1 = self.syorma1.get_component(CharacterComponent)
+        char_comp2 = self.syorma2.get_component(CharacterComponent)
+
+        if not char_comp1 or not char_comp2:
+            return
+
+        attack_hitboxes1 = char_comp1.get_attack_hitboxes()
+        hurtbox2 = char_comp2.get_hurt_hitbox()
+        for attack_hitbox in attack_hitboxes1:
+            if hurtbox2:
+                if attack_hitbox.check_collision(hurtbox2):
+                    char_comp2.take_damage(attack_hitbox.damage, attack_hitbox.knockback_force, attack_hitbox.hitstun_duration)
+                    attack_hitbox.active = False
+
+        attack_hitboxes2 = char_comp2.get_attack_hitboxes()
+        hurtbox1 = char_comp1.get_hurt_hitbox()
+        for attack_hitbox in attack_hitboxes2:
+            if hurtbox1:
+                if attack_hitbox.check_collision(hurtbox1):
+                    char_comp1.take_damage(attack_hitbox.damage, attack_hitbox.knockback_force, attack_hitbox.hitstun_duration)
+                    attack_hitbox.active = False
+
+        if char_comp1.lives <= 0 or char_comp2.lives <= 0:
+            self._game_over()
+
+    def _game_over(self):
+        from scripts.Menu import Menu
+        menu = Menu(self.window)
+        self.window.show_view(menu)

@@ -1,6 +1,7 @@
 import arcade
 from scripts.globals import WIDTH, HEIGHT
 from scripts.Class.FightLocal import FightLocal
+from scripts.Class.ChoiceCharacterMenu import CharacterChoiceObject
 
 class Transition(arcade.View):
     def __init__(self, window):
@@ -19,7 +20,7 @@ class Transition(arcade.View):
             self.go_to_fight()
 
     def go_to_fight(self):
-        fight_screen = FightLocal(self.window)
+        fight_screen = CharacterChoiceObject(self.window)
         self.window.show_view(fight_screen)
 
     def on_draw(self):
