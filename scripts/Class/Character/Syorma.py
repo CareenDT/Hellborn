@@ -1,3 +1,4 @@
+import arcade
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Character.CharacterComponent import CharacterComponent, CharacterStats
 import os
@@ -44,6 +45,9 @@ class SyormaCharacterComponent(CharacterComponent):
         self.uppercut_cooldown_time = 2.0
         self.awoken_timer = 0
         self.awoken_duration = 30.0
+
+        self.PunchSND = arcade.load_sound("assets/audio/Snd/punch.wav")
+        self.AwakenSND = arcade.load_sound("assets/audio/Snd/awaken.wav")
 
         self.attack_animation_started = False
         self.last_frame_index = 0
@@ -100,6 +104,8 @@ class SyormaCharacterComponent(CharacterComponent):
     def attack(self):
         if self.uppercut_cooldown > 0:
             return
+        
+        self.PunchSND.play(4)
 
         if self.combo_timer > 0:
             self.combo_step += 1
@@ -121,6 +127,7 @@ class SyormaCharacterComponent(CharacterComponent):
             self.combo_step = 0
         else:
             self.combo_step = 0
+
 
         self.combo_timer = self.combo_window
         self.velocity_x = 0
@@ -149,6 +156,7 @@ class SyormaCharacterComponent(CharacterComponent):
 
     def awaken(self):
         if not self.is_awoken and self.rage >= 100:
+            self.AwakenSND.play()
             self.is_awoken = True
             self.rage = 0
             self.speed = self.base_speed * 1.5
@@ -156,19 +164,19 @@ class SyormaCharacterComponent(CharacterComponent):
 
     def _get_frame_durations(self, state: CharacterState, frame_count: int) -> list[float]:
         if state == CharacterState.IDLE:
-            return [0.4] * frame_count
+            return [0.3] * frame_count
         elif state in [CharacterState.WALK_FORWARD, CharacterState.WALK_BACKWARD]:
-            return [0.15] * frame_count
+            return [0.1] * frame_count
         elif state in [CharacterState.PUNCH1, CharacterState.PUNCH2]:
             return [0.08] * frame_count
         elif state == CharacterState.KICK:
-            return [0.01, 0.3, 0.08, 0.08]
+            return [0.01, 0.1, 0.08, 0.08]
         elif state == CharacterState.UPPERCUT:
             return [0.1] * frame_count
         elif state == CharacterState.JUMP:
             return [0.2, 0.3, 0.2]
         elif state == CharacterState.DAMAGE:
-            return [0.1] * frame_count
+            return [0.2] * frame_count
         else:
             return [0.25] * frame_count
 

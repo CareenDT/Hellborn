@@ -1,3 +1,4 @@
+import arcade
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Character.CharacterComponent import CharacterComponent, CharacterStats
 import os
@@ -33,6 +34,9 @@ class DarkKnight(GameObject):
 class DarkKnightCharacterComponent(CharacterComponent):
     def __init__(self, stats, game_object=None, controls=None, sprite_list=None):
         super().__init__(game_object, controls)
+
+        self.SwordSND = arcade.load_sound("assets/audio/Snd/Sword.wav")
+
         self.stats = stats
         self.speed = stats.speed
         self.base_damage = stats.base_damage
@@ -94,6 +98,8 @@ class DarkKnightCharacterComponent(CharacterComponent):
                 self.last_frame_index = current_frame
 
     def attack(self):
+
+        self.SwordSND.play()
         if self.uppercut_cooldown > 0:
             return
 

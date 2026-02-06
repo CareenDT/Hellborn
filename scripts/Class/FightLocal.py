@@ -191,7 +191,6 @@ class FightLocal(arcade.View):
         for obj in self.game_objects:
             obj.draw()
         self.Object_Batch.draw(pixelated=True)
-        arcade.draw_line(0, 150, WIDTH, 150, arcade.color.GREEN, 2)
         self.gui_camera.use()
         self.ui_sprite_list.clear()
         current_width = self.window.width
@@ -224,7 +223,7 @@ class FightLocal(arcade.View):
                                  "Player 2", arcade.color.YELLOW, scale=1, flip=True)
 
         timer_text = f"Time: {int(self.round_timer)}"
-        arcade.draw_text(timer_text, current_width // 2, current_height * 0.95,
+        arcade.draw_text(timer_text, current_width // 2, current_height * 0.8,
                          arcade.color.WHITE, 24, anchor_x="center")
 
         self.ui_sprite_list.draw(pixelated=True)
@@ -313,10 +312,6 @@ class FightLocal(arcade.View):
 
     def on_key_press(self, key: int, modifiers: int):
         self.keys_pressed.add(key)
-        if key == arcade.key.ESCAPE:
-            from scripts.Menu import MenuObject
-            menu_view = MenuObject(self.window)
-            self.window.show_view(menu_view)
         if not self.is_round_pausing or self._is_movement_key(key):
             if self.player1:
                 char_comp1 = self.player1.get_component(CharacterComponent)

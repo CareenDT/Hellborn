@@ -161,9 +161,9 @@ class ShadowTentCharacterComponent(CharacterComponent):
 
     def _get_frame_durations(self, state: CharacterState, frame_count: int) -> list[float]:
         if state == CharacterState.IDLE:
-            return [0.4] * frame_count
+            return [0.3] * frame_count
         elif state in [CharacterState.WALK_FORWARD, CharacterState.WALK_BACKWARD]:
-            return [0.15] * frame_count
+            return [0.1] * frame_count
         elif state in [CharacterState.PUNCH1, CharacterState.PUNCH2]:
             return [0.08] * frame_count
         elif state == CharacterState.KICK:
@@ -171,7 +171,7 @@ class ShadowTentCharacterComponent(CharacterComponent):
         elif state == CharacterState.UPPERCUT:
             return [0.1] * frame_count
         elif state == CharacterState.JUMP:
-            return [0.2, 0.3, 0.2]
+            return [0.2, 0.1, 0.2]
         else:
             return [0.25] * frame_count
 

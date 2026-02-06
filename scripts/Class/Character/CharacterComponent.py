@@ -108,11 +108,6 @@ class CharacterComponent(Component):
                 self.is_awoken = False
                 self.awaken_timer = 0
                 self.speed = self.base_speed
-                if self.game_object:
-                    self.game_object.transform.scale_x = self.base_scale
-                    self.game_object.transform.scale_y = self.base_scale
-                if self.sprite_renderer and self.sprite_renderer.sprite:
-                    self.sprite_renderer.sprite.scale = self.base_scale
                 self._setup_animations()
 
         if hasattr(self.animation, 'is_complete') and self.animation.is_complete:

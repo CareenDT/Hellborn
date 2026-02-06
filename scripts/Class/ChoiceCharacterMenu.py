@@ -2,7 +2,6 @@ import arcade
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Components import *
 
-
 class CharacterChoiceObject(arcade.View):
     def __init__(self, window):
         super().__init__(window)
@@ -26,13 +25,6 @@ class CharacterChoiceObject(arcade.View):
         panel_width = 0.5 * self.window.width
         btn_width = 0.8 * panel_width
         btn_height = btn_width * (32 / 128)
-
-        
-        
-        
-        
-        
-        
 
         self.characters = ["Syorma", "ShadowTent", "DarkKnight"]
         self.path_textures = ["assets/images/syrma.png",
@@ -121,6 +113,7 @@ class CharacterChoiceObject(arcade.View):
     def onBtn_Click(self, btn):
         if btn == "Back":
             from scripts.Menu import MenuObject
+
             menu = MenuObject(self.window)
             self.window.show_view(menu)
 
