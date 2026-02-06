@@ -58,13 +58,14 @@ class ShadowTentCharacterComponent(CharacterComponent):
         self.add_hitbox(hurtbox)
         self.punch1_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=80, height=60, offset_x=80, offset_y=0, knockback_force=150, hitstun_duration=0.3)
         self.add_hitbox(self.punch1_hitbox)
-        self.punch2_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=75, height=60, offset_x=72.5, offset_y=0, knockback_force=180, hitstun_duration=0.4)
+        self.punch2_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage, width=90, height=70, offset_x=90, offset_y=0, knockback_force=180, hitstun_duration=0.4)
         self.add_hitbox(self.punch2_hitbox)
         self.kick_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 1.5, width=100, height=70, offset_x=95, offset_y=0, knockback_force=300, hitstun_duration=0.6)
         self.add_hitbox(self.kick_hitbox)
-        self.uppercut_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 2, width=300, height=30, offset_x=150, offset_y=0, knockback_force=400, hitstun_duration=0.8)  
+        self.uppercut_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 2, width=50, height=80, offset_x=40, offset_y=-20, knockback_force=450, hitstun_duration=0.8)
         self.add_hitbox(self.uppercut_hitbox)
-        self.awaken_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 3, width=400, height=300, offset_x=0, offset_y=0, knockback_force=500, hitstun_duration=1.0)  
+        self.awaken_hitbox = HitboxComponent(HitboxType.ATTACK, damage=self.base_damage * 3, width=500, height=350, offset_x=0, offset_y=0, knockback_force=500, hitstun_duration=1.0)
+        self.add_hitbox(self.awaken_hitbox)
 
     def on_draw(self):
         super().on_draw()
@@ -86,11 +87,11 @@ class ShadowTentCharacterComponent(CharacterComponent):
         if self.current_state == CharacterState.SCARED:
             current_frame = getattr(self.animation, 'frame_index', 0)
             if current_frame != self.last_frame_index:
-                if current_frame == 2:  
+                if current_frame == 0 and self.last_frame_index == 4:  
+                    # Animation completed, now blackout and deal damage
                     if self.view:
                         self.view.blackout_timer = self.blackout_duration
-                    self.awaken_hitbox.activate(self.blackout_duration)  
-                elif current_frame == 0 and self.last_frame_index == 4:  
+                    self.awaken_hitbox.activate(self.blackout_duration)
                     self.change_state(CharacterState.IDLE)
                 self.last_frame_index = current_frame
 
@@ -129,6 +130,9 @@ class ShadowTentCharacterComponent(CharacterComponent):
 
         self.combo_timer = self.combo_window
         self.velocity_x = 0
+
+    def jump(self):
+        pass
 
     def uppercut(self):
         if self.uppercut_cooldown > 0:

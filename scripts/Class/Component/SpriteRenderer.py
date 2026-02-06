@@ -4,7 +4,7 @@ import os
 from scripts.Class.GameObject import Component
 
 class SpriteRendererComponent(Component):
-    def __init__(self, image_path, scale=1.0, sprite_list=None):
+    def __init__(self, image_path, scale=1.0, sprite_list=None, align_bottom=False):
         super().__init__()
 
         if os.path.exists(image_path):
@@ -21,6 +21,7 @@ class SpriteRendererComponent(Component):
         self.scale = scale
         self.custom_width = None
         self.custom_height = None
+        self.align_bottom = align_bottom
         self.batch = sprite_list
         if self.batch is not None:
             self.batch.append(self.sprite)
@@ -29,10 +30,13 @@ class SpriteRendererComponent(Component):
         if self.game_object and self.game_object.transform:
             t = self.game_object.transform
             if self.sprite:
-                self.sprite.center_x = t.x
-                self.sprite.center_y = t.y
                 if self.custom_width is None and self.custom_height is None:
                     self.sprite.scale = self.scale * t.scale_x
+                self.sprite.center_x = t.x
+                if self.align_bottom:
+                    self.sprite.center_y = t.y + self.sprite.height / 2
+                else:
+                    self.sprite.center_y = t.y
 
     def start(self):
         self.sync_with_transform()

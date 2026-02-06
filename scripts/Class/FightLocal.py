@@ -64,9 +64,10 @@ class FightLocal(arcade.View):
         self.blackout_timer = 0
         self.round_pause_timer = 0
         self.is_round_pausing = False
+        self.round_timer = 60.0
+        self.time_up = False
 
         self._setup()
-        print(self.pl_1, self.pl_2)
 
     def _setup(self):
         self.FightMusic = arcade.load_sound("assets/audio/msc_fight.mp3")
@@ -179,8 +180,8 @@ class FightLocal(arcade.View):
 
     def _is_movement_key(self, key):
         movement_keys = [
-            arcade.key.A, arcade.key.D, arcade.key.W, arcade.key.S,  # Player 1
-            arcade.key.LEFT, arcade.key.RIGHT, arcade.key.UP, arcade.key.DOWN  # Player 2 or general
+            arcade.key.A, arcade.key.D, arcade.key.W, arcade.key.S,
+            arcade.key.LEFT, arcade.key.RIGHT, arcade.key.UP, arcade.key.DOWN
         ]
         return key in movement_keys
 
@@ -189,7 +190,6 @@ class FightLocal(arcade.View):
         self.world_camera.use()
         for obj in self.game_objects:
             obj.draw()
-            print(obj)
         self.Object_Batch.draw(pixelated=True)
         arcade.draw_line(0, 150, WIDTH, 150, arcade.color.GREEN, 2)
         self.gui_camera.use()
@@ -222,6 +222,11 @@ class FightLocal(arcade.View):
         if self.player2:
             self._draw_player_ui(self.player2, current_width * 0.9, current_height * 0.87,
                                  "Player 2", arcade.color.YELLOW, scale=1, flip=True)
+
+        timer_text = f"Time: {int(self.round_timer)}"
+        arcade.draw_text(timer_text, current_width // 2, current_height * 0.95,
+                         arcade.color.WHITE, 24, anchor_x="center")
+
         self.ui_sprite_list.draw(pixelated=True)
 
         if self.blackout_timer > 0:
@@ -233,6 +238,9 @@ class FightLocal(arcade.View):
 
         self.bg.transform.y = self.world_camera.position.y
 
+        char_comp1 = self.player1.get_component(CharacterComponent)
+        char_comp2 = self.player2.get_component(CharacterComponent)
+
         for obj in self.game_objects:
             obj.update(delta_time)
 
@@ -243,11 +251,18 @@ class FightLocal(arcade.View):
             self.round_pause_timer -= delta_time
             if self.round_pause_timer <= 0:
                 self.is_round_pausing = False
+                self.round_timer = 60.0
+                self.time_up = False
+        else:
+            self.round_timer -= delta_time
+            if self.round_timer <= 0:
+                self.time_up = True
+                if char_comp1:
+                    char_comp1.take_damage(1, 0, 0)
+                if char_comp2:
+                    char_comp2.take_damage(1, 0, 0)
 
-        char_comp1 = self.player1.get_component(CharacterComponent)
-        char_comp2 = self.player2.get_component(CharacterComponent)
-
-        self.round = 6 - char_comp2.lives - char_comp1.lives
+        self.round = min(4, 6 - char_comp2.lives - char_comp1.lives)
 
         if self.player1 and self.player2:
             char_comp1 = self.player1.get_component(CharacterComponent)
@@ -302,7 +317,6 @@ class FightLocal(arcade.View):
             from scripts.Menu import MenuObject
             menu_view = MenuObject(self.window)
             self.window.show_view(menu_view)
-        # Allow movement keys even during pause
         if not self.is_round_pausing or self._is_movement_key(key):
             if self.player1:
                 char_comp1 = self.player1.get_component(CharacterComponent)

@@ -28,7 +28,6 @@ class Game(arcade.Window):
                     {'player_1':
                         {
                             "jump": "w",
-                            "sit": "s",
                             "backward": "a",
                             "forward": "d",
                             "hand strike": "e",
@@ -37,7 +36,6 @@ class Game(arcade.Window):
                     'player_2':
                         {
                             "jump": "i",
-                            "sit": "k",
                             "backward": "j",
                             "forward": "l",
                             "hand strike": "o",

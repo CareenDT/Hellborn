@@ -14,7 +14,8 @@ class Syorma(GameObject):
         sprite_renderer = SpriteRendererComponent(
             image_path=default_image,
             scale=scale,
-            sprite_list=sprite_list
+            sprite_list=sprite_list,
+            align_bottom=True
         )
         self.add_component(sprite_renderer)
 

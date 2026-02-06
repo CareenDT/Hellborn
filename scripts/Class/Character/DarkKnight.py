@@ -15,7 +15,8 @@ class DarkKnight(GameObject):
         sprite_renderer = SpriteRendererComponent(
             image_path=default_image,
             scale=scale,
-            sprite_list=sprite_list
+            sprite_list=sprite_list,
+            align_bottom=True
         )
         self.add_component(sprite_renderer)
 
@@ -84,7 +85,7 @@ class DarkKnightCharacterComponent(CharacterComponent):
             if self.potion_boost_timer <= 0:
                 self.reset_stats()
 
-        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT, CharacterState.JUMP]:
+        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT, CharacterState.JUMP, CharacterState.POTION_DAMAGE, CharacterState.POTION_HEAL, CharacterState.POTION_SPEED]:
             current_frame = getattr(self.animation, 'frame_index', 0)
             if current_frame != self.last_frame_index:
                 if current_frame == 0 and self.last_frame_index > 0:
@@ -148,20 +149,23 @@ class DarkKnightCharacterComponent(CharacterComponent):
     def awaken(self):
         if self.rage >= 100:
             self.rage = 0
-            
+
             potions = ['damage', 'heal', 'speed']
             self.potion_type = random.choice(potions)
             self.potion_boost_timer = self.potion_boost_duration
             if self.potion_type == 'damage':
+                self.change_state(CharacterState.POTION_DAMAGE)
                 self.base_damage *= 1.5
-                
+
                 self.punch1_hitbox.damage = self.base_damage
                 self.punch2_hitbox.damage = self.base_damage
                 self.kick_hitbox.damage = self.base_damage * 1.5
                 self.uppercut_hitbox.damage = self.base_damage * 2
             elif self.potion_type == 'heal':
+                self.change_state(CharacterState.POTION_HEAL)
                 self.health = min(self.health + 50, self.max_health)
             elif self.potion_type == 'speed':
+                self.change_state(CharacterState.POTION_SPEED)
                 self.speed *= 1.5
 
     def reset_stats(self):
@@ -189,6 +193,8 @@ class DarkKnightCharacterComponent(CharacterComponent):
             return [0.2, 0.3, 0.2]
         elif state == CharacterState.DAMAGE:
             return [0.1] * frame_count
+        elif state in [CharacterState.POTION_DAMAGE, CharacterState.POTION_HEAL, CharacterState.POTION_SPEED]:
+            return [0.2] * frame_count
         else:
             return [0.25] * frame_count
 
@@ -206,6 +212,9 @@ class DarkKnightCharacterComponent(CharacterComponent):
             CharacterState.UPPERCUT: ["bull/1.png", "bull/2.png", "bull/3.png", "bull/4.png", "bull/5.png"],
             CharacterState.JUMP: ["jump/1.png", "jump/2.png", "jump/base.png"],
             CharacterState.DAMAGE: ["damage/1.png", "damage/2.png", "damage/3.png", "damage/4.png", "damage/5.png", "damage/6.png", "damage/7.png"],
+            CharacterState.POTION_DAMAGE: ["potion_damage/1.png", "potion_damage/2.png", "potion_damage/3.png"],
+            CharacterState.POTION_HEAL: ["potion_heal/1.png", "potion_heal/2.png", "potion_heal/3.png"],
+            CharacterState.POTION_SPEED: ["potion_speed/1.png", "potion_speed/2.png", "potion_speed/3.png"],
         }
 
         for state, filenames in animations.items():

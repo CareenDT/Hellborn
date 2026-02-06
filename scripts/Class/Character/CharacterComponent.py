@@ -31,6 +31,7 @@ class CharacterComponent(Component):
         self.velocity_y = 0
         self.friction = 0.85
         self.is_on_ground = False
+        self.can_jump = True
         self.ground_level = 150
         self.animation = CharacterAnimation()
         self.current_state = CharacterState.IDLE
@@ -141,8 +142,10 @@ class CharacterComponent(Component):
             self.velocity_y -= GRAVITY * delta_time
             if self.sprite_renderer.sprite.bottom <= self.ground_level:
                 t.y += self.ground_level - self.sprite_renderer.sprite.bottom
-                self.velocity_y = 0
+                if self.velocity_y <= 0:
+                    self.velocity_y = 0
                 self.is_on_ground = True
+                self.can_jump = True
 
             arena_left = 50
             arena_right = 1920 - 50
@@ -176,9 +179,10 @@ class CharacterComponent(Component):
             self.change_state(CharacterState.IDLE)
     
     def jump(self):
-        if self.is_on_ground:
+        if self.is_on_ground and self.can_jump:
             self.velocity_y = 400
             self.is_on_ground = False
+            self.can_jump = False
     
     def attack(self):
         if self.uppercut_cooldown > 0:

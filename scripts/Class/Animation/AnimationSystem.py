@@ -13,6 +13,9 @@ class CharacterState(Enum):
     JUMP = "jump"
     DAMAGE = "damage"
     SCARED = "scared"
+    POTION_DAMAGE = "potion_damage"
+    POTION_HEAL = "potion_heal"
+    POTION_SPEED = "potion_speed"
 
 class CharacterAnimation:
     def __init__(self):
