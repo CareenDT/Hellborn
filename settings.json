@@ -2,8 +2,8 @@
   "volume": 1,
   "controls": {
     "player_1": {
-      "jump": "z",
-      "sit": "v",
+      "jump": "w",
+      "sit": "s",
       "backward": "a",
       "forward": "d",
       "hand strike": "e",
