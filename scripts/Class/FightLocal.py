@@ -371,6 +371,6 @@ class FightLocal(arcade.View):
             self._game_over()
 
     def _game_over(self):
-        from scripts.Menu import Menu
-        menu = Menu(self.window)
+        from scripts.Menu import MenuObject
+        menu = MenuObject(self.window)
         self.window.show_view(menu)
