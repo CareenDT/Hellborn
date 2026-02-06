@@ -224,6 +224,8 @@ class CharacterComponent(Component):
             life_depleted = True
             if self.lives <= 0:
                 self.lives = 0
+            if hasattr(self, 'view') and self.view:
+                self.view.start_round_pause()
         self.rage += damage
         if self.rage > 100:
             self.rage = 100

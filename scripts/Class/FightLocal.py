@@ -62,6 +62,8 @@ class FightLocal(arcade.View):
         self.pl_1 = pl_1
         self.pl_2 = pl_2
         self.blackout_timer = 0
+        self.round_pause_timer = 0
+        self.is_round_pausing = False
 
         self._setup()
         print(self.pl_1, self.pl_2)
@@ -171,13 +173,22 @@ class FightLocal(arcade.View):
         self.arena_bottom = 150
         self.old_round = 0
 
+    def start_round_pause(self):
+        self.is_round_pausing = True
+        self.round_pause_timer = 5.0
+
+    def _is_movement_key(self, key):
+        movement_keys = [
+            arcade.key.A, arcade.key.D, arcade.key.W, arcade.key.S,  # Player 1
+            arcade.key.LEFT, arcade.key.RIGHT, arcade.key.UP, arcade.key.DOWN  # Player 2 or general
+        ]
+        return key in movement_keys
+
     def on_draw(self):
         self.clear()
         self.world_camera.use()
         for obj in self.game_objects:
-            if obj != "Name: Title; Gameobject(Position: (0.0, 0.0);)":
-                obj.draw()
-                print(obj, 1)
+            obj.draw()
             print(obj)
         self.Object_Batch.draw(pixelated=True)
         arcade.draw_line(0, 150, WIDTH, 150, arcade.color.GREEN, 2)
@@ -228,6 +239,10 @@ class FightLocal(arcade.View):
         if self.blackout_timer > 0:
             self.blackout_timer -= delta_time
 
+        if self.is_round_pausing:
+            self.round_pause_timer -= delta_time
+            if self.round_pause_timer <= 0:
+                self.is_round_pausing = False
 
         char_comp1 = self.player1.get_component(CharacterComponent)
         char_comp2 = self.player2.get_component(CharacterComponent)
@@ -262,17 +277,22 @@ class FightLocal(arcade.View):
 
         self.world_camera.position = (self.world_camera.position.lerp(Middle, 0.02) * arcade.Vec2(1,0)) + arcade.Vec2(0,self.world_camera.viewport.height//2)
 
-        if self.title in self.game_objects:
-            self.game_objects.remove(self.title)
-        if self.old_round != self.round:
-            self.Title_Batch.clear()
+        self.Title_Batch.clear()
 
-        self.title = GameObject("Title", Transform())
-        self.title.add_component(ScreenRelativeTransform(self.settings_panel, 0, 0.35, 1, 1))
-        title_renderer = SpriteRendererComponent(self.textures[self.round], 1, self.Title_Batch)
-        title_renderer.set_custom_size(self.btn_width * 0.9, self.btn_height * 0.6)
-        self.title.add_component(title_renderer)
-        self.game_objects.append(self.title)
+        if self.is_round_pausing or self.old_round != self.round:
+            self.title = GameObject("Title", Transform())
+            if self.is_round_pausing:
+                self.title.transform.position = (WIDTH // 2, HEIGHT // 2)
+            else:
+                self.title.add_component(ScreenRelativeTransform(self.settings_panel, 0, 0.35, 1, 1))
+            title_renderer = SpriteRendererComponent(self.textures[self.round], 1, self.Title_Batch)
+            title_renderer.set_custom_size(self.btn_width * 0.9, self.btn_height * 0.6)
+            self.title.add_component(title_renderer)
+            if self.is_round_pausing:
+                sprite_comp = self.title.get_component(SpriteRendererComponent)
+                if sprite_comp and sprite_comp.sprite:
+                    sprite_comp.sprite.center_x = self.window.width // 2
+                    sprite_comp.sprite.center_y = self.window.height // 2
 
         self.old_round = self.round
 
@@ -282,14 +302,16 @@ class FightLocal(arcade.View):
             from scripts.Menu import MenuObject
             menu_view = MenuObject(self.window)
             self.window.show_view(menu_view)
-        if self.player1:
-            char_comp1 = self.player1.get_component(CharacterComponent)
-            if char_comp1:
-                char_comp1.handle_key_press(key)
-        if self.player2:
-            char_comp2 = self.player2.get_component(CharacterComponent)
-            if char_comp2:
-                char_comp2.handle_key_press(key)
+        # Allow movement keys even during pause
+        if not self.is_round_pausing or self._is_movement_key(key):
+            if self.player1:
+                char_comp1 = self.player1.get_component(CharacterComponent)
+                if char_comp1:
+                    char_comp1.handle_key_press(key)
+            if self.player2:
+                char_comp2 = self.player2.get_component(CharacterComponent)
+                if char_comp2:
+                    char_comp2.handle_key_press(key)
 
     def on_key_release(self, key: int, modifiers: int):
         if key in self.keys_pressed:
