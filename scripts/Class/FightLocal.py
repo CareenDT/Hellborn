@@ -1,11 +1,11 @@
 import arcade
 from scripts.Class.Character.CharacterComponent import CharacterComponent
 from scripts.Class.GameObject import GameObject, Transform
-from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
 from scripts.Class.Character.Syorma import Syorma
 from scripts.Class.Character.DarkKnight import DarkKnight
 from scripts.Class.Character.ShadowTent import ShadowTent
 from scripts.globals import WIDTH, HEIGHT, FILE_NAME
+from scripts.Class.Components import *
 import json
 
 
@@ -47,10 +47,16 @@ class FightLocal(arcade.View):
         self.game_objects = []
         self.Object_Batch = arcade.SpriteList()
         self.ui_sprite_list = arcade.SpriteList()
+        self.Title_Batch = arcade.SpriteList()
         self.keys_pressed = set()
         self.players = []
         self.world_camera = arcade.Camera2D()
         self.gui_camera = arcade.Camera2D()
+        self.title = None
+
+
+        self.textures = ["assets/images/r_1.png", "assets/images/r_2.png", "assets/images/r_3.png",
+                         "assets/images/r_4.png", "assets/images/f_r.png"]
 
 
         self.pl_1 = pl_1
@@ -74,6 +80,18 @@ class FightLocal(arcade.View):
         )
         self.bg.add_component(bg_renderer)
         self.game_objects.append(self.bg)
+        self.bg.add_component(bg_renderer)
+        self.game_objects.append(self.bg)
+        self.round = 0
+
+        self.settings_panel = GameObject("SettingsPanel", Transform())
+        self.settings_panel.add_component(ScreenRelativeTransform(self, 0.5, 0.5, 0.6, 0.8))
+        self.game_objects.append(self.settings_panel)
+
+        panel_width = 0.5 * self.window.width
+        self.btn_width = 0.8 * panel_width
+        self.btn_height = self.btn_width * (32 / 128)
+
 
         with open(FILE_NAME, "r", encoding="utf-8") as f:
             self.settings = json.load(f)
@@ -151,12 +169,16 @@ class FightLocal(arcade.View):
         self.arena_right = WIDTH - 50
         self.arena_top = HEIGHT - 50
         self.arena_bottom = 150
+        self.old_round = 0
 
     def on_draw(self):
         self.clear()
         self.world_camera.use()
         for obj in self.game_objects:
-            obj.draw()
+            if obj != "Name: Title; Gameobject(Position: (0.0, 0.0);)":
+                obj.draw()
+                print(obj, 1)
+            print(obj)
         self.Object_Batch.draw(pixelated=True)
         arcade.draw_line(0, 150, WIDTH, 150, arcade.color.GREEN, 2)
         self.gui_camera.use()
@@ -194,6 +216,8 @@ class FightLocal(arcade.View):
         if self.blackout_timer > 0:
             arcade.draw_rect_filled(arcade.rect.XYRR(self.window.width // 2, self.window.height // 2, self.window.width // 2, self.window.height // 2), arcade.color.BLACK)
 
+        self.Title_Batch.draw(pixelated=True)
+
     def on_update(self, delta_time):
 
         self.bg.transform.y = self.world_camera.position.y
@@ -203,6 +227,12 @@ class FightLocal(arcade.View):
 
         if self.blackout_timer > 0:
             self.blackout_timer -= delta_time
+
+
+        char_comp1 = self.player1.get_component(CharacterComponent)
+        char_comp2 = self.player2.get_component(CharacterComponent)
+
+        self.round = 6 - char_comp2.lives - char_comp1.lives
 
         if self.player1 and self.player2:
             char_comp1 = self.player1.get_component(CharacterComponent)
@@ -231,6 +261,20 @@ class FightLocal(arcade.View):
         Middle = self.player1.transform.position.lerp(self.player2.transform.position,0.5)
 
         self.world_camera.position = (self.world_camera.position.lerp(Middle, 0.02) * arcade.Vec2(1,0)) + arcade.Vec2(0,self.world_camera.viewport.height//2)
+
+        if self.title in self.game_objects:
+            self.game_objects.remove(self.title)
+        if self.old_round != self.round:
+            self.Title_Batch.clear()
+
+        self.title = GameObject("Title", Transform())
+        self.title.add_component(ScreenRelativeTransform(self.settings_panel, 0, 0.35, 1, 1))
+        title_renderer = SpriteRendererComponent(self.textures[self.round], 1, self.Title_Batch)
+        title_renderer.set_custom_size(self.btn_width * 0.9, self.btn_height * 0.6)
+        self.title.add_component(title_renderer)
+        self.game_objects.append(self.title)
+
+        self.old_round = self.round
 
     def on_key_press(self, key: int, modifiers: int):
         self.keys_pressed.add(key)

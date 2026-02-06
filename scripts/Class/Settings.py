@@ -43,28 +43,28 @@ class SettingsObject(arcade.View):
 
         self.btn_music = GameObject("Music", Transform())
         self.btn_music.add_component(ScreenRelativeTransform(self.settings_panel, 0, 0.15, 0.8, 0.8))
-        btn_music_renderer = SpriteRendererComponent("assets/images/sound_settings.png", 1, self.Object_Batch)
-        btn_music_renderer.set_custom_size(btn_width, btn_height)
+        btn_music_renderer = SpriteRendererComponent("assets/images/sound.png", 1, self.Object_Batch)
+        btn_music_renderer.set_custom_size(btn_width * 1.2, btn_height)
         self.btn_music.add_component(btn_music_renderer)
         self.btn_music.add_component(ButtonComponent(self, self.btn_music, "Music",
                                                      on_click=lambda: self.onBtn_Click("Music"),
-                                                     normal_texture_path="assets/images/sound_settings.png"))
+                                                     normal_texture_path="assets/images/sound.png"))
         self.game_objects.append(self.btn_music)
 
         self.btn_customization = GameObject("Customization", Transform())
         self.btn_customization.add_component(ScreenRelativeTransform(self.settings_panel, 0, -0.15, 0.8, 0.8))
-        btn_customization_renderer = SpriteRendererComponent("assets/images/keys_setting.png", 1, self.Object_Batch)
-        btn_customization_renderer.set_custom_size(btn_width, btn_height)
+        btn_customization_renderer = SpriteRendererComponent("assets/images/key_btn.png", 1, self.Object_Batch)
+        btn_customization_renderer.set_custom_size(btn_width * 1.2, btn_height)
         self.btn_customization.add_component(btn_customization_renderer)
         self.btn_customization.add_component(ButtonComponent(self, self.btn_customization, "Customization",
                                                              on_click=lambda: self.onBtn_Click("Customization"),
-                                                             normal_texture_path="assets/images/keys_setting.png"))
+                                                             normal_texture_path="assets/images/key_btn.png"))
         self.game_objects.append(self.btn_customization)
 
         self.btn_back = GameObject("Back", Transform())
         self.btn_back.add_component(ScreenRelativeTransform(self.settings_panel, 0, -0.45, 0.8, 0.8))
         btn_back_renderer = SpriteRendererComponent("assets/images/return.png", 1, self.Object_Batch)
-        btn_back_renderer.set_custom_size(btn_width, btn_height)
+        btn_back_renderer.set_custom_size(btn_width * 1.2, btn_height)
         self.btn_back.add_component(btn_back_renderer)
         self.btn_back.add_component(ButtonComponent(self, self.btn_back, "Back",
                                                     on_click=lambda: self.onBtn_Click("Back"),
