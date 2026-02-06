@@ -62,7 +62,7 @@ class ControlsSettingsObject(arcade.View):
         self.game_objects.append(self.btn_player2)
 
         y_positions = [0.08, 0.005, -0.073, -0.15, -0.225, -0.305]
-        actions = ["jump", "sit", "backward", "forward", "hand strike", "kick"]
+        actions = ["jump", "backward", "forward", "hand strike", "kick"]
 
         self.action_buttons = {}
 
@@ -96,14 +96,14 @@ class ControlsSettingsObject(arcade.View):
             obj.draw()
         self.Object_Batch.draw(pixelated=True)
 
-        arcade.draw_text("Игрок 1", self.width * 0.35, self.height * 0.65, arcade.color.BEAVER, 24, anchor_x="center",
+        arcade.draw_text("Player 1", self.width * 0.35, self.height * 0.65, arcade.color.BEAVER, 24, anchor_x="center",
                          anchor_y="center", font_name="Tahoma")
-        arcade.draw_text("Игрок 2", self.width * 0.65, self.height * 0.65, arcade.color.BEAVER, 24, anchor_x="center",
+        arcade.draw_text("Player 2", self.width * 0.65, self.height * 0.65, arcade.color.BEAVER, 24, anchor_x="center",
                          anchor_y="center", font_name="Tahoma")
 
         y_positions = [0.58, 0.51, 0.44, 0.37, 0.3, 0.23]
-        action_names = ["Прыжок", "Присед", "Назад", "Вперед", "Удар рукой", "Апперкот"]
-        action_keys = ["jump", "sit", "backward", "forward", "hand strike", "uppercut"]
+        action_names = ["Jump", "Left", "Right", "Attack 1", "Attack 2"]
+        action_keys = ["jump", "backward", "forward", "hand strike", "uppercut"]
 
         for i in range(len(action_names)):
             arcade.draw_text(action_names[i], self.width * 0.38, self.height * y_positions[i],
@@ -117,7 +117,7 @@ class ControlsSettingsObject(arcade.View):
         if self.waiting_for_key:
             waiting_name = action_names[action_keys.index(
                 self.waiting_for_key)]
-            arcade.draw_text(f"Нажмите клавишу для: {waiting_name}",
+            arcade.draw_text(f"Press the key for: {waiting_name}",
                              self.width // 2, self.height * 0.8,
                              arcade.color.RED, 30, anchor_x="center", anchor_y="center")
 

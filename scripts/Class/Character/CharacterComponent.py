@@ -150,13 +150,13 @@ class CharacterComponent(Component):
             if t.x < arena_left:
                 t.x = arena_left
                 if self.is_in_hitstun:
-                    self.velocity_x = -self.velocity_x  # Bounce opposite way for knockback
+                    self.velocity_x = -self.velocity_x
                 else:
                     self.velocity_x = 0
             elif t.x > arena_right:
                 t.x = arena_right
                 if self.is_in_hitstun:
-                    self.velocity_x = -self.velocity_x  # Bounce opposite way for knockback
+                    self.velocity_x = -self.velocity_x
                 else:
                     self.velocity_x = 0
     
@@ -231,17 +231,16 @@ class CharacterComponent(Component):
         if knockback_force > 0:
             direction = -1 if self.facing_right else 1
             if life_depleted:
-                # Violent knockback on life depletion - continuous during animation
                 self.is_in_damage_knockback = True
-                self.damage_knockback_force = knockback_force * 4  # More violent knockback
+                self.damage_knockback_force = knockback_force * 8
                 self.damage_knockback_direction = direction
                 self.velocity_x += self.damage_knockback_force * direction
-                self.velocity_y += knockback_force * 1.0  # Higher upward knockback
+                self.velocity_y += knockback_force * 2
                 self.change_state(CharacterState.DAMAGE)
-                hitstun_duration = 1.0  # Longer hitstun for damage animation
+                hitstun_duration = 1.0
             else:
-                self.velocity_x += knockback_force * direction * 1.5  # Stronger knockback
-                self.velocity_y += knockback_force * 0.8  # Stronger upward knockback
+                self.velocity_x += knockback_force * direction * 1.5
+                self.velocity_y += knockback_force * 0.8
         if hitstun_duration > 0:
             self.hitstun_timer = hitstun_duration
             self.is_in_hitstun = True

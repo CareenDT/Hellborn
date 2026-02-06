@@ -61,14 +61,19 @@ class FightLocal(arcade.View):
         print(self.pl_1, self.pl_2)
 
     def _setup(self):
-        bg = GameObject("Background", Transform(WIDTH // 2, HEIGHT // 2))
+        self.FightMusic = arcade.load_sound("assets/audio/msc_fight.mp3")
+
+        self.window.MenuMusicPlayer.delete()
+        self.FightMusicPlayer = self.FightMusic.play()
+
+        self.bg = GameObject("Background", Transform(WIDTH // 2, HEIGHT // 2))
         bg_renderer = SpriteRendererComponent(
             "assets/arena.png",
             scale=1.0,
             sprite_list=self.Object_Batch
         )
-        bg.add_component(bg_renderer)
-        self.game_objects.append(bg)
+        self.bg.add_component(bg_renderer)
+        self.game_objects.append(self.bg)
 
         with open(FILE_NAME, "r", encoding="utf-8") as f:
             self.settings = json.load(f)
@@ -100,7 +105,6 @@ class FightLocal(arcade.View):
             'awaken': arcade.key.SPACE
         }
 
-        # Instantiate player 1 based on selection
         if self.pl_1 == "Syorma":
             self.player1 = Syorma("Player1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
                                   controls=player1_controls)
@@ -112,9 +116,8 @@ class FightLocal(arcade.View):
                                       controls=player1_controls)
         else:
             self.player1 = Syorma("Player1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
-                                  controls=player1_controls)  # Default to Syorma
+                                  controls=player1_controls)
 
-        # Set view reference for special abilities
         if hasattr(self.player1, 'get_component'):
             char_comp = self.player1.get_component(CharacterComponent)
             if char_comp:
@@ -123,7 +126,6 @@ class FightLocal(arcade.View):
         self.game_objects.append(self.player1)
         self.players.append(self.player1)
 
-        # Instantiate player 2 based on selection
         if self.pl_2 == "Syorma":
             self.player2 = Syorma("Player2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
                                   controls=player2_controls)
@@ -135,9 +137,8 @@ class FightLocal(arcade.View):
                                       controls=player2_controls)
         else:
             self.player2 = Syorma("Player2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
-                                  controls=player2_controls)  # Default to Syorma
+                                  controls=player2_controls)
 
-        # Set view reference for special abilities
         if hasattr(self.player2, 'get_component'):
             char_comp = self.player2.get_component(CharacterComponent)
             if char_comp:
@@ -190,12 +191,13 @@ class FightLocal(arcade.View):
                                  "Player 2", arcade.color.YELLOW, scale=1, flip=True)
         self.ui_sprite_list.draw(pixelated=True)
 
-        # Draw blackout if active
         if self.blackout_timer > 0:
-            arcade.draw_rectangle_filled(self.window.width // 2, self.window.height // 2,
-                                         self.window.width, self.window.height, arcade.color.BLACK)
+            arcade.draw_rect_filled(arcade.rect.XYRR(self.window.width // 2, self.window.height // 2, self.window.width // 2, self.window.height // 2), arcade.color.BLACK)
 
     def on_update(self, delta_time):
+
+        self.bg.transform.y = self.world_camera.position.y
+
         for obj in self.game_objects:
             obj.update(delta_time)
 
@@ -372,5 +374,10 @@ class FightLocal(arcade.View):
 
     def _game_over(self):
         from scripts.Menu import MenuObject
+        self.FightMusicPlayer.delete()
+
+        self.window.MenuMusic = arcade.load_sound("assets/audio/msc_music.mp3")
+        self.window.MenuMusicPlayer = self.window.MenuMusic.play(loop=True)
+
         menu = MenuObject(self.window)
         self.window.show_view(menu)

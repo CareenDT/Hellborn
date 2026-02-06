@@ -32,7 +32,7 @@ class LogoScreen(arcade.View):
         self.timer += delta_time
         
         if self.fade_state == "in":
-            self.alpha = min(self.alpha + 200 * delta_time, 255)
+            self.alpha = min(self.alpha + 100 * delta_time, 255)
             self.sprite.alpha = int(self.alpha)
             if self.alpha >= 255:
                 self.fade_state = "hold"
@@ -49,7 +49,9 @@ class LogoScreen(arcade.View):
         
         elif self.fade_state == "tween":
 
-            if self.timer >= 2.0:
+            self.alpha = max(self.alpha - 50 * delta_time, 0)
+            self.sprite.alpha = int(self.alpha)
+            if self.alpha <= 0:
                 self.fade_state = "change"
                 self.timer = 0
         

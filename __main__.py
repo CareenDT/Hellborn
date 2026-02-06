@@ -13,10 +13,13 @@ class Game(arcade.Window):
         super().__init__(WIDTH, HEIGHT, title, resizable=False, antialiasing=False, fullscreen=True)
         arcade.set_background_color(arcade.color.BLACK)
         self.file_name = FILE_NAME
+        self.MenuMusic = arcade.load_sound("assets/audio/msc_music.mp3")
 
     def setup(self):
         loading_screen = LogoScreen(self)
         self.show_view(loading_screen)
+
+        self.MenuMusicPlayer = self.MenuMusic.play(loop=True)
 
         if not os.path.exists(self.file_name):
             settings = {
