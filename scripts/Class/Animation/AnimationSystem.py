@@ -11,6 +11,8 @@ class CharacterState(Enum):
     KICK = "kick"
     UPPERCUT = "uppercut"
     JUMP = "jump"
+    DAMAGE = "damage"
+    SCARED = "scared"
 
 class CharacterAnimation:
     def __init__(self):
@@ -53,7 +55,7 @@ class CharacterAnimation:
                     self.animation_timer = 0
                     next_index = self.frame_index + 1
                     if next_index >= len(textures):
-                        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT]:
+                        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT, CharacterState.DAMAGE]:
                             self.is_complete = True
                             return
                         else:

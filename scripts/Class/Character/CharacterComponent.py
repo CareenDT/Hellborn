@@ -15,7 +15,7 @@ class CharacterStats():
 
 
 class CharacterComponent(Component):
-    def __init__(self, game_object=None, controls=None):
+    def __init__(self, game_object=None, controls=None, view=None):
         super().__init__(game_object)
         self.controls = controls or {
             'left': arcade.key.A,
@@ -60,6 +60,9 @@ class CharacterComponent(Component):
         self.awaken_duration = 25.0
         self.combo_cooldown = 0
         self.combo_cooldown_time = 1.0
+        self.is_in_damage_knockback = False
+        self.damage_knockback_force = 0
+        self.damage_knockback_direction = 1
     
     def start(self):
         self.sprite_renderer = self.game_object.get_component(SpriteRendererComponent)
@@ -112,7 +115,11 @@ class CharacterComponent(Component):
                 self._setup_animations()
 
         if hasattr(self.animation, 'is_complete') and self.animation.is_complete:
-            if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT]:
+            if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT, CharacterState.DAMAGE]:
+                if self.current_state == CharacterState.DAMAGE:
+                    self.is_in_damage_knockback = False
+                    self.damage_knockback_force = 0
+                    self.damage_knockback_direction = 1
                 self.change_state(CharacterState.IDLE)
 
         if self.sprite_renderer:
@@ -142,13 +149,19 @@ class CharacterComponent(Component):
 
             if t.x < arena_left:
                 t.x = arena_left
-                self.velocity_x = 0
+                if self.is_in_hitstun:
+                    self.velocity_x = -self.velocity_x  # Bounce opposite way for knockback
+                else:
+                    self.velocity_x = 0
             elif t.x > arena_right:
                 t.x = arena_right
-                self.velocity_x = 0
+                if self.is_in_hitstun:
+                    self.velocity_x = -self.velocity_x  # Bounce opposite way for knockback
+                else:
+                    self.velocity_x = 0
     
     def move(self, direction: int):
-        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT]:
+        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT, CharacterState.DAMAGE]:
             self.velocity_x = 0
             return
 
@@ -204,9 +217,11 @@ class CharacterComponent(Component):
     
     def take_damage(self, damage: float, knockback_force: float = 0, hitstun_duration: float = 0.5):
         self.health -= damage
+        life_depleted = False
         if self.health <= 0:
             self.health = self.max_health
             self.lives -= 1
+            life_depleted = True
             if self.lives <= 0:
                 self.lives = 0
         self.rage += damage
@@ -215,12 +230,23 @@ class CharacterComponent(Component):
 
         if knockback_force > 0:
             direction = -1 if self.facing_right else 1
-            self.velocity_x += knockback_force * direction
-            self.velocity_y += knockback_force * 0.5
+            if life_depleted:
+                # Violent knockback on life depletion - continuous during animation
+                self.is_in_damage_knockback = True
+                self.damage_knockback_force = knockback_force * 4  # More violent knockback
+                self.damage_knockback_direction = direction
+                self.velocity_x += self.damage_knockback_force * direction
+                self.velocity_y += knockback_force * 1.0  # Higher upward knockback
+                self.change_state(CharacterState.DAMAGE)
+                hitstun_duration = 1.0  # Longer hitstun for damage animation
+            else:
+                self.velocity_x += knockback_force * direction * 1.5  # Stronger knockback
+                self.velocity_y += knockback_force * 0.8  # Stronger upward knockback
         if hitstun_duration > 0:
             self.hitstun_timer = hitstun_duration
             self.is_in_hitstun = True
-            self.change_state(CharacterState.IDLE)
+            if not life_depleted:
+                self.change_state(CharacterState.IDLE)
 
     def deal_damage(self, target, damage: float):
         if target and hasattr(target, 'take_damage'):
@@ -258,7 +284,7 @@ class CharacterComponent(Component):
         if self.is_in_hitstun:
             return
 
-        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT]:
+        if self.current_state in [CharacterState.PUNCH1, CharacterState.PUNCH2, CharacterState.KICK, CharacterState.UPPERCUT, CharacterState.DAMAGE]:
             self.velocity_x = 0
             return
 

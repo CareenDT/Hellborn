@@ -166,6 +166,8 @@ class SyormaCharacterComponent(CharacterComponent):
             return [0.1] * frame_count
         elif state == CharacterState.JUMP:
             return [0.2, 0.3, 0.2]
+        elif state == CharacterState.DAMAGE:
+            return [0.1] * frame_count
         else:
             return [0.25] * frame_count
 
@@ -191,6 +193,7 @@ class SyormaCharacterComponent(CharacterComponent):
                 "uppercut/7.png"
             ],
             CharacterState.JUMP: ["jump/1.png", "jump/2.png", "jump/1.png"],
+            CharacterState.DAMAGE: ["damage/1.png", "damage/2.png", "damage/3.png", "damage/4.png", "damage/5.png", "damage/6.png", "damage/7.png"],
         }
 
         for state, filenames in animations.items():

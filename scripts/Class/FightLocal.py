@@ -3,6 +3,8 @@ from scripts.Class.Character.CharacterComponent import CharacterComponent
 from scripts.Class.GameObject import GameObject, Transform
 from scripts.Class.Component.SpriteRenderer import SpriteRendererComponent
 from scripts.Class.Character.Syorma import Syorma
+from scripts.Class.Character.DarkKnight import DarkKnight
+from scripts.Class.Character.ShadowTent import ShadowTent
 from scripts.globals import WIDTH, HEIGHT, FILE_NAME
 import json
 
@@ -51,10 +53,11 @@ class FightLocal(arcade.View):
         self.gui_camera = arcade.Camera2D()
 
 
-        self._setup()
-
         self.pl_1 = pl_1
         self.pl_2 = pl_2
+        self.blackout_timer = 0
+
+        self._setup()
         print(self.pl_1, self.pl_2)
 
     def _setup(self):
@@ -97,14 +100,51 @@ class FightLocal(arcade.View):
             'awaken': arcade.key.SPACE
         }
 
-        self.syorma1 = Syorma("Syorma1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
-                              controls=player1_controls)
-        self.game_objects.append(self.syorma1)
-        self.players.append(self.syorma1)
-        self.syorma2 = Syorma("Syorma2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
-                              controls=player2_controls)
-        self.game_objects.append(self.syorma2)
-        self.players.append(self.syorma2)
+        # Instantiate player 1 based on selection
+        if self.pl_1 == "Syorma":
+            self.player1 = Syorma("Player1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
+                                  controls=player1_controls)
+        elif self.pl_1 == "DarkKnight":
+            self.player1 = DarkKnight("Player1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
+                                      controls=player1_controls)
+        elif self.pl_1 == "ShadowTent":
+            self.player1 = ShadowTent("Player1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
+                                      controls=player1_controls)
+        else:
+            self.player1 = Syorma("Player1", Transform(WIDTH // 4, 500), self.Object_Batch, scale=6.0,
+                                  controls=player1_controls)  # Default to Syorma
+
+        # Set view reference for special abilities
+        if hasattr(self.player1, 'get_component'):
+            char_comp = self.player1.get_component(CharacterComponent)
+            if char_comp:
+                char_comp.view = self
+
+        self.game_objects.append(self.player1)
+        self.players.append(self.player1)
+
+        # Instantiate player 2 based on selection
+        if self.pl_2 == "Syorma":
+            self.player2 = Syorma("Player2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
+                                  controls=player2_controls)
+        elif self.pl_2 == "DarkKnight":
+            self.player2 = DarkKnight("Player2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
+                                      controls=player2_controls)
+        elif self.pl_2 == "ShadowTent":
+            self.player2 = ShadowTent("Player2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
+                                      controls=player2_controls)
+        else:
+            self.player2 = Syorma("Player2", Transform(WIDTH * 3 // 4, 500), self.Object_Batch, scale=6.0,
+                                  controls=player2_controls)  # Default to Syorma
+
+        # Set view reference for special abilities
+        if hasattr(self.player2, 'get_component'):
+            char_comp = self.player2.get_component(CharacterComponent)
+            if char_comp:
+                char_comp.view = self
+
+        self.game_objects.append(self.player2)
+        self.players.append(self.player2)
 
         self.arena_left = 50
         self.arena_right = WIDTH - 50
@@ -130,43 +170,51 @@ class FightLocal(arcade.View):
                                       center_y=hp_bar_center_y)
         hp_bar_sprite.scale = large_scale
         self.ui_sprite_list.append(hp_bar_sprite)
-        if self.syorma1:
-            char_comp1 = self.syorma1.get_component(CharacterComponent)
+        if self.player1:
+            char_comp1 = self.player1.get_component(CharacterComponent)
             if char_comp1:
                 hp_percentage1 = char_comp1.health / char_comp1.max_health
                 self._draw_hp_fill(hp_bar_center_x, hp_bar_center_y, hp_percentage1,
                                    arcade.color.YELLOW, large_scale, flip=False)
-        if self.syorma2:
-            char_comp2 = self.syorma2.get_component(CharacterComponent)
+        if self.player2:
+            char_comp2 = self.player2.get_component(CharacterComponent)
             if char_comp2:
                 hp_percentage2 = char_comp2.health / char_comp2.max_health
                 self._draw_hp_fill(hp_bar_center_x, hp_bar_center_y, hp_percentage2,
                                    arcade.color.YELLOW, large_scale, flip=True)
-        if self.syorma1:
-            self._draw_player_ui(self.syorma1, current_width * 0.1, current_height * 0.87,
+        if self.player1:
+            self._draw_player_ui(self.player1, current_width * 0.1, current_height * 0.87,
                                  "Player 1", arcade.color.PURPLE, scale=1, flip=False)
-        if self.syorma2:
-            self._draw_player_ui(self.syorma2, current_width * 0.9, current_height * 0.87,
+        if self.player2:
+            self._draw_player_ui(self.player2, current_width * 0.9, current_height * 0.87,
                                  "Player 2", arcade.color.YELLOW, scale=1, flip=True)
         self.ui_sprite_list.draw(pixelated=True)
+
+        # Draw blackout if active
+        if self.blackout_timer > 0:
+            arcade.draw_rectangle_filled(self.window.width // 2, self.window.height // 2,
+                                         self.window.width, self.window.height, arcade.color.BLACK)
 
     def on_update(self, delta_time):
         for obj in self.game_objects:
             obj.update(delta_time)
 
-        if self.syorma1 and self.syorma2:
-            char_comp1 = self.syorma1.get_component(CharacterComponent)
-            char_comp2 = self.syorma2.get_component(CharacterComponent)
+        if self.blackout_timer > 0:
+            self.blackout_timer -= delta_time
+
+        if self.player1 and self.player2:
+            char_comp1 = self.player1.get_component(CharacterComponent)
+            char_comp2 = self.player2.get_component(CharacterComponent)
 
             if char_comp1 and char_comp2:
                 old_facing1 = char_comp1.facing_right
-                if self.syorma1.transform.position.x < self.syorma2.transform.position.x:
+                if self.player1.transform.position.x < self.player2.transform.position.x:
                     char_comp1.facing_right = True
                 else:
                     char_comp1.facing_right = False
 
                 old_facing2 = char_comp2.facing_right
-                if self.syorma2.transform.position.x < self.syorma1.transform.position.x:
+                if self.player2.transform.position.x < self.player1.transform.position.x:
                     char_comp2.facing_right = True
                 else:
                     char_comp2.facing_right = False
@@ -178,7 +226,7 @@ class FightLocal(arcade.View):
 
         self._check_hitbox_collisions()
 
-        Middle = self.syorma1.transform.position.lerp(self.syorma2.transform.position,0.5)
+        Middle = self.player1.transform.position.lerp(self.player2.transform.position,0.5)
 
         self.world_camera.position = (self.world_camera.position.lerp(Middle, 0.02) * arcade.Vec2(1,0)) + arcade.Vec2(0,self.world_camera.viewport.height//2)
 
@@ -188,24 +236,24 @@ class FightLocal(arcade.View):
             from scripts.Menu import MenuObject
             menu_view = MenuObject(self.window)
             self.window.show_view(menu_view)
-        if self.syorma1:
-            char_comp1 = self.syorma1.get_component(CharacterComponent)
+        if self.player1:
+            char_comp1 = self.player1.get_component(CharacterComponent)
             if char_comp1:
                 char_comp1.handle_key_press(key)
-        if self.syorma2:
-            char_comp2 = self.syorma2.get_component(CharacterComponent)
+        if self.player2:
+            char_comp2 = self.player2.get_component(CharacterComponent)
             if char_comp2:
                 char_comp2.handle_key_press(key)
 
     def on_key_release(self, key: int, modifiers: int):
         if key in self.keys_pressed:
             self.keys_pressed.remove(key)
-        if self.syorma1:
-            char_comp1 = self.syorma1.get_component(CharacterComponent)
+        if self.player1:
+            char_comp1 = self.player1.get_component(CharacterComponent)
             if char_comp1:
                 char_comp1.handle_key_release(key)
-        if self.syorma2:
-            char_comp2 = self.syorma2.get_component(CharacterComponent)
+        if self.player2:
+            char_comp2 = self.player2.get_component(CharacterComponent)
             if char_comp2:
                 char_comp2.handle_key_release(key)
 
@@ -294,11 +342,11 @@ class FightLocal(arcade.View):
                 arcade.draw_polygon_filled(rage_right_points, arcade.color.PURPLE)
 
     def _check_hitbox_collisions(self):
-        if not self.syorma1 or not self.syorma2:
+        if not self.player1 or not self.player2:
             return
 
-        char_comp1 = self.syorma1.get_component(CharacterComponent)
-        char_comp2 = self.syorma2.get_component(CharacterComponent)
+        char_comp1 = self.player1.get_component(CharacterComponent)
+        char_comp2 = self.player2.get_component(CharacterComponent)
 
         if not char_comp1 or not char_comp2:
             return
